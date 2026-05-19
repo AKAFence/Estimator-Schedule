@@ -1,7 +1,7 @@
 <html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Tracker</title>
+    <title>Job Tracker Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&amp;family=Poppins:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
     <style>
         * {
@@ -105,15 +105,15 @@
         }
 
         .column-header.tom {
-            background: #df2f4a;
+            background: #ff3b30;
         }
 
         .column-header.brad {
-            background: #000000;
+            background: #0073ea;
         }
 
         .column-header.matt {
-            background: #0073ea;
+            background: #000000;
         }
 
         .sort-toggle {
@@ -359,28 +359,54 @@
             padding: 20px;
             color: #676879;
         }
+        .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#searchInput {
+    padding: 6px 10px;
+    border: 1px solid #d0d4e4;
+    border-radius: 6px;
+    font-size: 12px;
+    width: 200px;
+    outline: none;
+}
+
+#searchInput:focus {
+    border-color: #0073ea;
+    box-shadow: 0 0 0 2px rgba(0,115,234,0.2);
+}
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Job Tracker Dashboard</h1>
+    <div class="header-left">
+    <h1>Job Trackers</h1>
+
         <div class="header-right">
             <div class="legend">
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #9d50dd;"></div>
-                    <span>Auto</span>
+                    <span>Automation</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #00c875;"></div>
-                    <span>PA</span>
+                    <span>PA One</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #579bfc;"></div>
-                    <span>Ordered</span>
+                    <span>Material Ordered</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #FFED00;"></div>
-                    <span>Material</span>
+                    <span>HaveMaterial</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #7f5347;"></div>
@@ -826,7 +852,7 @@
             let newValue;
             
             if (currentValue === 'done' || currentValue === 'yes') {
-                newValue = 'No';
+                newValue = "";
             } else {
                 newValue = 'Done';
             }
