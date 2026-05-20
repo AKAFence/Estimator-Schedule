@@ -89,7 +89,7 @@
             border-radius: 8px;
             padding: 8px;
             box-shadow: 0px 4px 6px -4px rgba(0,0,0,0.1);
-            min-height: 200px;
+            min-height: 0;
         }
 
         .column-header {
@@ -102,6 +102,8 @@
             color: #ffffff;
             font-weight: 600;
             font-size: 12px;
+
+            cursor: pointer;
         }
 
         .column-header.tom {
@@ -359,6 +361,9 @@
             padding: 20px;
             color: #676879;
         }
+        .column.collapsed .job-card {
+    display: none;
+}
         .header {
     display: flex;
     justify-content: space-between;
@@ -383,6 +388,49 @@
 #searchInput:focus {
     border-color: #0073ea;
     box-shadow: 0 0 0 2px rgba(0,115,234,0.2);
+}
+
+@media (max-width: 768px) {
+
+    .columns-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .column {
+        width: 100%;
+        height: auto;
+        max-height: none;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .header-right {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    #searchInput {
+        width: 100%;
+    }
+
+    .job-card {
+        font-size: 13px;
+        padding: 10px;
+    }
+
+    .job-name {
+        font-size: 13px;
+    }
+
+    .job-details {
+        font-size: 11px;
+    }
 }
     </style>
 </head>
@@ -948,6 +996,14 @@
                 event.target.classList.remove('active');
             }
         }
+window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.column-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const column = header.parentElement;
+            column.classList.toggle('collapsed');
+        });
+    });
+});
     </script>
 
 </body></html>
