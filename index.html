@@ -590,13 +590,9 @@
         let completedCollapsed = false;
         let currentJob = null;
 
-        // Initialize
-        if (!apiToken) {
-            openSettings();
-        } else {
-            loadJobs();
-            setInterval(loadJobs, REFRESH_INTERVAL);
-        }
+     // Initialize
+loadJobs();
+setInterval(loadJobs, REFRESH_INTERVAL);
 
         // API Functions
         async function loadJobs() {
