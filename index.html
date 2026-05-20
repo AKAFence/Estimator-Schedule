@@ -496,6 +496,14 @@
         </div>
     </div>
 
+    <div class="completed-section">
+        <div class="completed-header" onclick="toggleCompleted()">
+            <span>Completed Jobs (<span id="completedCount">0</span>)</span>
+            <span id="completedToggle">▼</span>
+        </div>
+        <div class="completed-jobs" id="completedJobs"></div>
+    </div>
+
     <!-- Job Details Modal -->
     <div class="modal" id="jobModal">
         <div class="modal-content">
@@ -657,13 +665,13 @@
                 const tomJobs = allJobs.filter(j => j.estimator === 'Tom' && !j.completed);
                 const bradJobs = allJobs.filter(j => j.estimator === 'Brad' && !j.completed);
                 const mattJobs = allJobs.filter(j => j.estimator === 'Matt' && !j.completed);
-                
+                const completedJobs = allJobs.filter(j => j.completed);
                 
                 console.log('Jobs per estimator:');
                 console.log('  Tom:', tomJobs.length);
                 console.log('  Brad:', bradJobs.length);
                 console.log('  Matt:', mattJobs.length);
-                
+                console.log('  Completed:', completedJobs.length);
                 
                 renderJobs();
                 updateLastUpdated();
@@ -705,9 +713,10 @@
             return job;
         }
 
-      function renderJobs() {
-    // Only active jobs
-    const activeJobs = allJobs.filter(j => !j.completed);
+        function renderJobs() {
+            // Separate active and completed jobs
+            const activeJobs = allJobs.filter(j => !j.completed);
+            const completedJobs = allJobs.filter(j => j.completed);
 
             // Group active jobs by estimator
             const tomJobs = activeJobs.filter(j => j.estimator === 'Tom');
@@ -720,12 +729,13 @@
             renderColumn('matt', sortJobs(mattJobs, sortOrders.matt));
 
             // Render completed jobs
-            //renderCompletedJobs(completedJobs);
+            renderCompletedJobs(completedJobs);
 
             // Update counts
             document.getElementById('tomCount').textContent = tomJobs.length;
             document.getElementById('bradCount').textContent = bradJobs.length;
             document.getElementById('mattCount').textContent = mattJobs.length;
+            document.getElementById('completedCount').textContent = completedJobs.length;
         }
 
         function sortJobs(jobs, order) {
@@ -751,6 +761,10 @@
                 container.appendChild(card);
             });
         }
+
+        function renderCompletedJobs(jobs) {
+            const container = document.getElementById('completedJobs');
+            container.innerHTML = '';
 
             jobs.forEach(job => {
                 const card = createJobCard(job);
@@ -824,6 +838,18 @@
             toggle.textContent = sortOrders[estimator] === 'date' ? 'Sort: Date ↓' : 'Sort: Name ↓';
             renderJobs();
         }
+
+        function toggleCompleted() {
+            completedCollapsed = !completedCollapsed;
+            const container = document.getElementById('completedJobs');
+            const toggle = document.getElementById('completedToggle');
+            
+            if (completedCollapsed) {
+                container.classList.add('collapsed');
+                toggle.textContent = '▶';
+            } else {
+                container.classList.remove('collapsed');
+                toggle.textContent = '▼';
             }
         }
 
