@@ -496,14 +496,6 @@
         </div>
     </div>
 
-    <div class="completed-section">
-        <div class="completed-header" onclick="toggleCompleted()">
-            <span>Completed Jobs (<span id="completedCount">0</span>)</span>
-            <span id="completedToggle">▼</span>
-        </div>
-        <div class="completed-jobs" id="completedJobs"></div>
-    </div>
-
     <!-- Job Details Modal -->
     <div class="modal" id="jobModal">
         <div class="modal-content">
@@ -729,13 +721,11 @@
             renderColumn('matt', sortJobs(mattJobs, sortOrders.matt));
 
             // Render completed jobs
-            renderCompletedJobs(completedJobs);
 
             // Update counts
             document.getElementById('tomCount').textContent = tomJobs.length;
             document.getElementById('bradCount').textContent = bradJobs.length;
             document.getElementById('mattCount').textContent = mattJobs.length;
-            document.getElementById('completedCount').textContent = completedJobs.length;
         }
 
         function sortJobs(jobs, order) {
@@ -754,16 +744,6 @@
 
         function renderColumn(estimator, jobs) {
             const container = document.getElementById(`${estimator}Jobs`);
-            container.innerHTML = '';
-
-            jobs.forEach(job => {
-                const card = createJobCard(job);
-                container.appendChild(card);
-            });
-        }
-
-        function renderCompletedJobs(jobs) {
-            const container = document.getElementById('completedJobs');
             container.innerHTML = '';
 
             jobs.forEach(job => {
