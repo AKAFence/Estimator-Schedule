@@ -746,7 +746,8 @@ if (savedColumnState) {
             document.getElementById('tomCount').textContent = tomJobs.length;
             document.getElementById('bradCount').textContent = bradJobs.length;
             document.getElementById('mattCount').textContent = mattJobs.length;
-        }
+       applyColumnState();
+     }
 
         function sortJobs(jobs, order) {
             const sorted = [...jobs];
