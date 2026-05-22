@@ -2,6 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Tracker Dashboard</title>
+    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&amp;family=Poppins:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
     <style>
         * {
@@ -42,12 +43,19 @@
             gap: 12px;
         }
 
-        .legend {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            font-size: 10px;
-        }
+     .legend {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-size: 10px;
+    background: #ffffff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    box-shadow: 0px 4px 6px -4px rgba(0,0,0,0.1);
+    overflow-x: auto;
+    white-space: nowrap;
+}
 
         .legend-item {
             display: flex;
@@ -89,7 +97,7 @@
             border-radius: 8px;
             padding: 8px;
             box-shadow: 0px 4px 6px -4px rgba(0,0,0,0.1);
-            min-height: 200px;
+            min-height: 0;
         }
 
         .column-header {
@@ -102,18 +110,20 @@
             color: #ffffff;
             font-weight: 600;
             font-size: 12px;
+
+            cursor: pointer;
         }
 
         .column-header.tom {
-            background: #0073ea;
+            background: #ff3b30;
         }
 
         .column-header.brad {
-            background: #00c875;
+            background: #000000;
         }
 
         .column-header.matt {
-            background: #fdab3d;
+            background: #0073ea;
         }
 
         .sort-toggle {
@@ -359,28 +369,107 @@
             padding: 20px;
             color: #676879;
         }
+        .column.collapsed .job-card {
+    display: none;
+}
+        .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#searchInput {
+    padding: 6px 10px;
+    border: 1px solid #d0d4e4;
+    border-radius: 6px;
+    font-size: 12px;
+    width: 200px;
+    outline: none;
+}
+
+#searchInput:focus {
+    border-color: #0073ea;
+    box-shadow: 0 0 0 2px rgba(0,115,234,0.2);
+}
+
+@media (max-width: 768px) {
+
+    .columns-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .column {
+        width: 100%;
+        height: auto;
+        max-height: none;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .header-right {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    #searchInput {
+        width: 100%;
+    }
+
+    .job-card {
+        font-size: 13px;
+        padding: 10px;
+    }
+
+    .job-name {
+        font-size: 13px;
+    }
+
+    .job-details {
+        font-size: 11px;
+    }
+}
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Job Tracker Dashboard</h1>
+    <div class="header-left">
+    <h1>Job Tracker</h1>
+
         <div class="header-right">
-            <div class="legend">
+            
+            <div class="last-updated" id="lastUpdated">Updated: 11:01 AM</div>
+        
+        </div>
+    </div>
+
+    <div id="errorContainer"></div>
+    <div class="legend">
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #9d50dd;"></div>
-                    <span>Auto</span>
+                    <span>Automation</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #00c875;"></div>
-                    <span>PA</span>
+                    <span>PA One</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #579bfc;"></div>
-                    <span>Ordered</span>
+                    <span>Material Ordered</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #FFED00;"></div>
-                    <span>Material</span>
+                    <span>HaveMaterial</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #7f5347;"></div>
@@ -391,43 +480,29 @@
                     <span>Complete</span>
                 </div>
             </div>
-            <div class="last-updated" id="lastUpdated">Updated: 11:01 AM</div>
-            <div class="settings-icon" onclick="openSettings()">⚙️</div>
-        </div>
-    </div>
-
-    <div id="errorContainer"></div>
 
     <div class="columns-container">
         <div class="column">
-            <div class="column-header tom">
+            <div class="column-header tom" onclick="toggleColumn('tom')">
                 <span>Tom (<span id="tomCount">19</span>)</span>
                 <span class="sort-toggle" onclick="toggleSort('tom')">Sort: Date ↓</span>
             </div>
             <div id="tomJobs"><div class="job-card"><div class="job-name">Chris Opdyke</div><div class="job-details">📍 3362 Main Street, Birdsboro, PA, USA</div><div class="job-details">📅 2026-01-16</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Dave &amp; Sarah Peris</div><div class="job-details">📍 29 Plymouth Place, Wyomissing, PA, USA</div><div class="job-details">📅 2026-04-11</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">David Miller</div><div class="job-details">📍 1016 Fleetwood Lyons Road, Fleetwood, PA, USA</div><div class="job-details">📅 2026-04-16</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: rgb(0, 200, 117);"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Lenny Leibman</div><div class="job-details">📍 190 Evans Hill Road, Sinking Spring, PA, USA</div><div class="job-details">📅 2026-04-21</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Jessica Downey</div><div class="job-details">📍 11 Doe Run, Reading, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: rgb(0, 200, 117);"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Sara Perez</div><div class="job-details">📍 1 Oriole Rd, Wyomissing, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: rgb(0, 200, 117);"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Sormakaba</div><div class="job-details">📍 1 Dorma Drive, Reamstown, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Jeremy Sweigart</div><div class="job-details">📍 1159 Sportsman Road, Robesonia, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Michael Nuss</div><div class="job-details">📍 108 Wheatfield Road, Sinking Spring, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Judy &amp; James Bonner</div><div class="job-details">📍 267 McCoy Lane, Leesport, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Bob Glenn</div><div class="job-details">📍 315 Kentucky Avenue, Sinking Spring, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Sarah Perez</div><div class="job-details">📍 1 Oriole Road, Wyomissing, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">FM Brown's Sons Inc.</div><div class="job-details">📍 118 West Main Street, Fleetwood, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Jessica Downey</div><div class="job-details">📍 11 Doe Run, Reading, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Dan &amp; Loretta Leibert</div><div class="job-details">📍 1053 Mountain Road, Kempton, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Chris &amp; Linda Dailey</div><div class="job-details">📍 522 Erich Street, Wernersville, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Bob Glenn</div><div class="job-details">📍 315 Kentucky Avenue, Sinking Spring, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Scott Fields</div><div class="job-details">📍 313 Kentucky Avenue, Sinking Spring, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Kelly McCarty</div><div class="job-details">📍 124 Marion Street, Hamburg, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div></div>
         </div>
         <div class="column">
-            <div class="column-header brad">
+            <div class="column-header brad" onclick="toggleColumn('brad')">
                 <span>Brad (<span id="bradCount">13</span>)</span>
                 <span class="sort-toggle" onclick="toggleSort('brad')">Sort: Date ↓</span>
             </div>
             <div id="bradJobs"><div class="job-card"><div class="job-name">Jean Gillin</div><div class="job-details">📍 23 Saddle Court, Sinking Spring, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Dave Slabon</div><div class="job-details">📍 2401 Noble Street, West Lawn, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Peter Orth</div><div class="job-details">📍 872 Freemansville Road, Reading, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Gregory &amp; Ashley Manukian</div><div class="job-details">📍 8 Hummingbird Road, Wyomissing, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Hunter &amp; Brooke Beane</div><div class="job-details">📍 13 Overhill Road, Reading, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Salvation Army, Reading</div><div class="job-details">📍 301 South 5th Street, Reading, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Don Moll</div><div class="job-details">📍 306 Wellington Avenue, Reading, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Reading Truck Body</div><div class="job-details">📍 825 E Wyomissing Blvd, Reading, PA, United States</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Barry Oister</div><div class="job-details">📍 454 Basket Road, Oley, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Linda Michalowski</div><div class="job-details">📍 2514 Wilson St, Reading, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Stacie Gulley</div><div class="job-details">📍 107 Teen Challenge Road, Womelsdorf, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Gregg Conner</div><div class="job-details">📍 903 Oak Lane, Wyomissing, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div><div class="job-card"><div class="job-name">Johanna Yates</div><div class="job-details">📍 824 Evergreen Drive, Wyomissing, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: transparent;"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div></div>
         </div>
         <div class="column">
-            <div class="column-header matt">
+            <div class="column-header matt" onclick="toggleColumn('matt')">
                 <span>Matt (<span id="mattCount">1</span>)</span>
                 <span class="sort-toggle" onclick="toggleSort('matt')">Sort: Date ↓</span>
             </div>
             <div id="mattJobs"><div class="job-card"><div class="job-name">John Zabinski</div><div class="job-details">📍 1313 Scott Court, Reading, PA, USA</div><div class="status-dots"><div class="status-dot" title="Automation" style="background: transparent;"></div><div class="status-dot" title="PA One Call" style="background: rgb(0, 200, 117);"></div><div class="status-dot" title="Ordered Material" style="background: transparent;"></div><div class="status-dot" title="Have Material" style="background: transparent;"></div><div class="status-dot" title="Have Permit" style="background: transparent;"></div><div class="status-dot" title="Job Complete" style="background: transparent;"></div></div></div></div>
         </div>
-    </div>
-
-    <div class="completed-section">
-        <div class="completed-header" onclick="toggleCompleted()">
-            <span>Completed Jobs (<span id="completedCount">0</span>)</span>
-            <span id="completedToggle">▼</span>
-        </div>
-        <div class="completed-jobs" id="completedJobs"></div>
     </div>
 
     <!-- Job Details Modal -->
@@ -518,12 +593,23 @@
         };
 
         // State
-        let apiToken = localStorage.getItem('mondayApiToken') || '';
+        let apiToken = 'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1OTAwMTUzOSwiYWFpIjoxMSwidWlkIjoxMDMyMTQ4NzcsImlhZCI6IjIwMjYtMDUtMTVUMTQ6NTY6MDguMDAwWiIsInBlciI6Im1lOndyaXRlIiwiYWN0aWQiOjM0OTg5MTQ2LCJyZ24iOiJ1c2UxIn0.Qo7Od1W81aOHJDMCzDmhdJ_-7dAexxnpTN4468PGln0';
         let allJobs = [];
         let sortOrders = { tom: 'date', brad: 'date', matt: 'date' };
         let completedCollapsed = false;
         let currentJob = null;
+// Column collapse state (safe version)
+const columnState = {
+    tom: false,
+    brad: false,
+    matt: false
+};
+// Load saved column state
+const savedColumnState = JSON.parse(localStorage.getItem('columnState'));
 
+if (savedColumnState) {
+    Object.assign(columnState, savedColumnState);
+}
         // Initialize
         if (!apiToken) {
             openSettings();
@@ -655,14 +741,14 @@
             renderColumn('matt', sortJobs(mattJobs, sortOrders.matt));
 
             // Render completed jobs
-            renderCompletedJobs(completedJobs);
+            
 
             // Update counts
             document.getElementById('tomCount').textContent = tomJobs.length;
             document.getElementById('bradCount').textContent = bradJobs.length;
             document.getElementById('mattCount').textContent = mattJobs.length;
-            document.getElementById('completedCount').textContent = completedJobs.length;
-        }
+       applyColumnState();
+     }
 
         function sortJobs(jobs, order) {
             const sorted = [...jobs];
@@ -680,16 +766,6 @@
 
         function renderColumn(estimator, jobs) {
             const container = document.getElementById(`${estimator}Jobs`);
-            container.innerHTML = '';
-
-            jobs.forEach(job => {
-                const card = createJobCard(job);
-                container.appendChild(card);
-            });
-        }
-
-        function renderCompletedJobs(jobs) {
-            const container = document.getElementById('completedJobs');
             container.innerHTML = '';
 
             jobs.forEach(job => {
@@ -826,7 +902,7 @@
             let newValue;
             
             if (currentValue === 'done' || currentValue === 'yes') {
-                newValue = 'No';
+                newValue = "";
             } else {
                 newValue = 'Done';
             }
@@ -922,6 +998,31 @@
                 event.target.classList.remove('active');
             }
         }
+function toggleColumn(estimator) {
+    columnState[estimator] = !columnState[estimator];
+
+    const column = document.getElementById(`${estimator}Jobs`).parentElement;
+
+    if (columnState[estimator]) {
+        column.classList.add('collapsed');
+    } else {
+        column.classList.remove('collapsed');
+    }
+
+    // SAVE to localStorage
+    localStorage.setItem('columnState', JSON.stringify(columnState));
+}
+function applyColumnState() {
+    ['tom', 'brad', 'matt'].forEach(estimator => {
+        const column = document.getElementById(`${estimator}Jobs`).parentElement;
+
+        if (columnState[estimator]) {
+            column.classList.add('collapsed');
+        } else {
+            column.classList.remove('collapsed');
+        }
+    });
+}
     </script>
 
 </body></html>
