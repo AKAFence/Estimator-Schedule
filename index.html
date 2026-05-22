@@ -51,7 +51,7 @@ body {
 .job-button {
     display: block;
     width: 80%;
-    margin: 20px auto 0;
+    margin: 60px auto 0; /* 👈 pushes it further down */
     background: #000;
     color: #fff;
     text-align: center;
@@ -60,6 +60,11 @@ body {
     font-size: 18px;
     font-weight: 600;
     text-decoration: none;
+    opacity: 0.9; /* optional: makes it less visually dominant */
+}
+
+.job-button:hover {
+    opacity: 1;
 }
 
         .tracker-button:hover {
