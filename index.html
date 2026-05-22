@@ -12,13 +12,18 @@ body {
     font-family: Arial, sans-serif;
     background: #DEB83B;
     min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
 }
 
         .container {
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-        }
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 10px 0;
+}
 
      .banner {
     width: 100%;
@@ -30,28 +35,14 @@ body {
 }
 
         .qr-code {
-            width: 250px;
-            max-width: 80%;
-            margin-bottom: 20px;
-        }
-
-        .scan-text {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-
-        .scan-list {
-            font-size: 16px;
-            color: #555;
-            line-height: 1.8;
-            margin-bottom: 35px;
-        }
-
+    width: 250px;
+    max-width: 80%;
+    margin: 20px 0 10px 0;
+}
 .job-button {
     display: block;
     width: 80%;
-    margin: 60px auto 0; /* 👈 pushes it further down */
+    margin: 30px auto 0;  /* more balanced */
     background: #000;
     color: #fff;
     text-align: center;
@@ -60,7 +51,7 @@ body {
     font-size: 18px;
     font-weight: 600;
     text-decoration: none;
-    opacity: 0.9; /* optional: makes it less visually dominant */
+    opacity: 0.9;
 }
 
 .job-button:hover {
