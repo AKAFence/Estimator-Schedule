@@ -17,10 +17,4 @@
     "type": "image/png"
   }
 ]
-    {
-      "src": "dog-logo.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
 }
