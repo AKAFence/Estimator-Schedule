@@ -806,12 +806,16 @@ if (savedColumnState) {
                 card.appendChild(locationDiv);
             }
 
-            if (job.date) {
-                const dateDiv = document.createElement('div');
-                dateDiv.className = 'job-details';
-                dateDiv.textContent = '📅 ' + job.date;
-                card.appendChild(dateDiv);
-            }
+                  if (job.date) {
+    const dateDiv = document.createElement('div');
+    dateDiv.className = 'job-details';
+
+    const d = new Date(job.date);
+    const formattedDate = d.toLocaleDateString('en-US');
+
+    dateDiv.textContent = '📅 ' + formattedDate;
+    card.appendChild(dateDiv);
+}
 
             // Status dots
             const dotsDiv = document.createElement('div');
