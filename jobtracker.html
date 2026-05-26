@@ -873,7 +873,16 @@ if (savedColumnState) {
             const detailsHtml = `
                 <div style="font-size: 12px; line-height: 1.6;">
                     <div><strong>Estimator:</strong> ${job.estimator}</div>
-                    ${job.location ? `<div><strong>Location:</strong> ${job.location}</div>` : ''}
+                    ${job.location ? `
+<div>
+  <strong>Location:</strong>
+  <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(job.location)}"
+     target="_blank"
+     style="color:#0073ea; text-decoration:none;">
+     📍 ${job.location}
+  </a>
+</div>
+` : ''}
                     ${job.date ? `<div><strong>Contract Date:</strong> ${job.date}</div>` : ''}
                     <div><strong>Notes:</strong> ${job.noteCount}</div>
                 </div>
