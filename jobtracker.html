@@ -110,18 +110,22 @@
         }
 
         .column-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 8px;
-            border-radius: 4px;
-            margin-bottom: 8px;
-            color: #ffffff;
-            font-weight: 600;
-            font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 12px;
 
-            cursor: pointer;
-        }
+    cursor: pointer;
+
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
 
         .column-header.tom {
             background: #ff3b30;
