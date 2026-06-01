@@ -952,11 +952,13 @@ if (savedColumnState) {
             const currentValue = (currentJob.statuses[statusId] || '').toLowerCase();
             let newValue;
             
-            if (currentValue === 'done' || currentValue === 'yes') {
-                newValue = "";
-            } else {
-                newValue = 'Done';
-            }
+                    if (currentValue === 'done' || currentValue === 'yes') {
+    newValue = "";
+} else {
+    newValue = statusId === 'color_mm3230va'
+        ? 'Yes'
+        : 'Done';
+}
             
             try {
                 const mutation = `
