@@ -987,14 +987,22 @@ if (savedColumnState) {
             const detailsHtml = `
                 <div style="font-size: 12px; line-height: 1.6;">
                     <div><strong>Estimator:</strong> ${job.estimator}</div>
-                    ${job.location ? `
+${job.location ? `
 <div>
   <strong>Location:</strong>
-  <a href="#"
-   onclick="openNavigation('${job.location}')"
-   style="color:#0073ea; text-decoration:none;">
-   📍 ${job.location}
-</a>
+  ${
+    /Mobi|Android|iPhone/i.test(navigator.userAgent)
+      ? `
+        <a href="#"
+         onclick="openNavigation('${job.location}')"
+         style="color:#0073ea; text-decoration:none;">
+         📍 ${job.location}
+        </a>
+      `
+      : `
+        <span>📍 ${job.location}</span>
+      `
+  }
 </div>
 ` : ''}
                     ${job.date ? `<div><strong>Contract Date:</strong> ${job.date}</div>` : ''}
@@ -1036,26 +1044,42 @@ function closeNavModal() {
 }
 
 function openGoogleMaps() {
-    window.open(
-        `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(navigationAddress)}`,
-        '_blank'
-    );
+    const url =
+        `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(navigationAddress)}`;
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener";
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
     closeNavModal();
 }
 
 function openAppleMaps() {
-    window.open(
-        `https://maps.apple.com/?daddr=${encodeURIComponent(navigationAddress)}`,
-        '_blank'
-    );
+    const url =
+        `maps://?daddr=${encodeURIComponent(navigationAddress)}`;
+
+    window.location.href = url;
     closeNavModal();
 }
 
 function openWaze() {
-    window.open(
-        `https://waze.com/ul?q=${encodeURIComponent(navigationAddress)}&navigate=yes`,
-        '_blank'
-    );
+    const url =
+        `https://waze.com/ul?q=${encodeURIComponent(navigationAddress)}&navigate=yes`;
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener";
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
     closeNavModal();
 }
         async function updateStatus(statusId) {
