@@ -382,9 +382,7 @@
             padding: 20px;
             color: #676879;
         }
- .column.collapsed #tomJobs,
-.column.collapsed #bradJobs,
-.column.collapsed #mattJobs {
+        .column.collapsed .job-card {
     display: none;
 }
         .header {
@@ -455,22 +453,18 @@
         font-size: 11px;
     }
 }
-
     </style>
 </head>
 <body>
-
-<div class="header">
     <div class="header-left">
-        <h1>Job Tracker</h1>
+    <h1>Job Tracker</h1>
 
         <div class="header-right">
-            <div class="last-updated" id="lastUpdated">
-                Updated: 11:01 AM
-            </div>
+            
+            <div class="last-updated" id="lastUpdated">Updated: 11:01 AM</div>
+        
         </div>
     </div>
-</div>
 
     <div id="errorContainer"></div>
     <div class="legend">
@@ -597,7 +591,33 @@
             <button class="close-modal" onclick="closeModal()">Close</button>
         </div>
     </div>
+<div class="modal" id="navModal">
+    <div class="modal-content" style="max-width:300px;">
+        <div class="modal-header">Navigate With</div>
 
+        <button class="close-modal" onclick="openGoogleMaps()">
+            Google Maps
+        </button>
+
+        <br><br>
+
+        <button class="close-modal" onclick="openAppleMaps()">
+            Apple Maps
+        </button>
+
+        <br><br>
+
+        <button class="close-modal" onclick="openWaze()">
+            Waze
+        </button>
+
+        <br><br>
+
+        <button class="close-modal" onclick="closeNavModal()">
+            Cancel
+        </button>
+    </div>
+</div>
     <!-- Settings Modal -->
     <div class="modal settings-modal" id="settingsModal">
         <div class="modal-content">
@@ -632,6 +652,7 @@
         let sortOrders = { tom: 'date', brad: 'date', matt: 'date' };
         let completedCollapsed = false;
         let currentJob = null;
+        let navigationAddress = '';
 // Column collapse state (safe version)
 const columnState = {
     tom: false,
@@ -909,11 +930,11 @@ if (savedColumnState) {
                     ${job.location ? `
 <div>
   <strong>Location:</strong>
-  <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(job.location)}"
-     target="_blank"
-     style="color:#0073ea; text-decoration:none;">
-     📍 ${job.location}
-  </a>
+  <a href="#"
+   onclick="openNavigation('${job.location}')"
+   style="color:#0073ea; text-decoration:none;">
+   📍 ${job.location}
+</a>
 </div>
 ` : ''}
                     ${job.date ? `<div><strong>Contract Date:</strong> ${job.date}</div>` : ''}
@@ -945,14 +966,45 @@ if (savedColumnState) {
             document.getElementById('jobModal').classList.remove('active');
             currentJob = null;
         }
+function openNavigation(address) {
+    navigationAddress = address;
+    document.getElementById('navModal').classList.add('active');
+}
 
+function closeNavModal() {
+    document.getElementById('navModal').classList.remove('active');
+}
+
+function openGoogleMaps() {
+    window.open(
+        `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(navigationAddress)}`,
+        '_blank'
+    );
+    closeNavModal();
+}
+
+function openAppleMaps() {
+    window.open(
+        `https://maps.apple.com/?daddr=${encodeURIComponent(navigationAddress)}`,
+        '_blank'
+    );
+    closeNavModal();
+}
+
+function openWaze() {
+    window.open(
+        `https://waze.com/ul?q=${encodeURIComponent(navigationAddress)}&navigate=yes`,
+        '_blank'
+    );
+    closeNavModal();
+}
         async function updateStatus(statusId) {
             if (!currentJob) return;
             
             const currentValue = (currentJob.statuses[statusId] || '').toLowerCase();
             let newValue;
             
-  if (currentValue === 'done' || currentValue === 'yes') {
+            if (currentValue === 'done' || currentValue === 'yes') {
                 newValue = "";
             } else {
                 newValue = 'Done';
