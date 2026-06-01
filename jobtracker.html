@@ -453,6 +453,83 @@
         font-size: 11px;
     }
 }
+/* =========================
+   NAVIGATION BOTTOM SHEET
+========================= */
+
+/* overlay */
+.nav-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 1100;
+}
+
+/* ONLY control layout when active */
+.nav-modal.active {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* THIS forces bottom */
+}
+
+/* bottom sheet */
+.nav-sheet {
+    width: 90%;
+    max-width: 500px;
+
+    margin-bottom: 2px;
+
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+
+    border-radius: 18px 18px 0 0;
+
+    padding: 14px 14px 20px;
+
+    transform: translateY(100%);
+    animation: slideUp 0.25s ease forwards;
+
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+/* title */
+.nav-title {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: #1c1c1e;
+}
+
+/* buttons */
+.nav-btn {
+    width: 100%;
+    background: #0073ea;
+    border: none;
+
+    padding: 8px;
+    border-radius: 4px;
+
+    font-size: 15px;
+    font-weight: 400;
+    color: #fefefe;
+
+    margin-bottom: 4px; /* tighter spacing */
+
+    cursor: pointer;
+
+    transition: all 0.15s ease;
+}
+
+.nav-btn:active {
+    transform: scale(0.98);
+}
     </style>
 </head>
 <body>
@@ -591,31 +668,14 @@
             <button class="close-modal" onclick="closeModal()">Close</button>
         </div>
     </div>
-<div class="modal" id="navModal">
-    <div class="modal-content" style="max-width:300px;">
-        <div class="modal-header">Navigate With</div>
+<div class="nav-modal" id="navModal">
+    <div class="nav-sheet">
+        <div class="nav-title">Navigate With</div>
 
-        <button class="close-modal" onclick="openGoogleMaps()">
-            Google Maps
-        </button>
+        <button class="nav-btn" onclick="openGoogleMaps()">Google Maps</button>
+        <button class="nav-btn" onclick="openAppleMaps()">Apple Maps</button>
+        <button class="nav-btn" onclick="openWaze()">Waze</button>
 
-        <br><br>
-
-        <button class="close-modal" onclick="openAppleMaps()">
-            Apple Maps
-        </button>
-
-        <br><br>
-
-        <button class="close-modal" onclick="openWaze()">
-            Waze
-        </button>
-
-        <br><br>
-
-        <button class="close-modal" onclick="closeNavModal()">
-            Cancel
-        </button>
     </div>
 </div>
     <!-- Settings Modal -->
@@ -1096,11 +1156,15 @@ function openWaze() {
         }
 
         // Close modals on outside click
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.classList.remove('active');
-            }
-        }
+       window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.classList.remove('active');
+    }
+
+    if (event.target.classList.contains('nav-modal')) {
+        event.target.classList.remove('active');
+    }
+}
 function toggleColumn(estimator) {
     columnState[estimator] = !columnState[estimator];
 
