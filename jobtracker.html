@@ -109,7 +109,7 @@
             min-height: 0;
         }
 
-   .column-header {
+ .column-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -119,17 +119,18 @@
     color: #ffffff;
     font-weight: 600;
     font-size: 12px;
-
     cursor: pointer;
 
     position: sticky;
     top: 0;
     z-index: 100;
 
-    /* Safari fix */
+    /* Safari fix stack */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: transform;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    transform: translateZ(0);
 }
 
         .column-header.tom {
