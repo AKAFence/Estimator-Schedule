@@ -1193,13 +1193,18 @@ function openWaze() {
         }
 
         // Close modals on outside click
-       window.onclick = function(event) {
-    if (event.target.classList.contains('modal')) {
-        event.target.classList.remove('active');
+  window.onclick = function(event) {
+
+    if (event.target.id === "jobModal") {
+        closeModal();
     }
 
-    if (event.target.classList.contains('nav-modal')) {
-        event.target.classList.remove('active');
+    if (event.target.id === "settingsModal") {
+        closeSettings();
+    }
+
+    if (event.target.id === "navModal") {
+        closeNavModal();
     }
 }
 function toggleColumn(estimator) {
