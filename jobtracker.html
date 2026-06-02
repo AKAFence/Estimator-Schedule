@@ -475,22 +475,23 @@
 
 /* bottom sheet */
 .nav-sheet {
-    width: 90%;
-    max-width: 500px;
+    width: 92%;
+    max-width: 520px;
 
-    margin-bottom: 2px;
+    margin-bottom: 10px;
 
-    background: rgba(255,255,255,0.92);
-    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
 
-    border-radius: 18px 18px 0 0;
+    border-radius: 20px;
 
-    padding: 14px 14px 20px;
+    padding: 12px 12px 14px;
 
     transform: translateY(100%);
     animation: slideUp 0.25s ease forwards;
 
-    box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
 }
 
 @keyframes slideUp {
@@ -510,25 +511,26 @@
 /* buttons */
 .nav-btn {
     width: 100%;
-    background: #0073ea;
+    background: #f2f2f7;
     border: none;
 
-    padding: 8px;
-    border-radius: 4px;
+    padding: 14px;
+    border-radius: 14px;
 
     font-size: 15px;
-    font-weight: 400;
-    color: #fefefe;
+    font-weight: 500;
+    color: #1c1c1e;
 
-    margin-bottom: 4px; /* tighter spacing */
+    margin-bottom: 6px;
 
     cursor: pointer;
 
-    transition: all 0.15s ease;
+    transition: transform 0.12s ease, background 0.2s ease;
 }
 
 .nav-btn:active {
     transform: scale(0.98);
+    background: #e5e5ea;
 }
     </style>
 </head>
@@ -1043,7 +1045,13 @@ function closeNavModal() {
     document.getElementById('navModal').classList.remove('active');
 }
 
+function haptic() {
+    if (navigator.vibrate) navigator.vibrate(10);
+}
+
 function openGoogleMaps() {
+    haptic();
+
     const url =
         `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(navigationAddress)}`;
 
@@ -1060,14 +1068,19 @@ function openGoogleMaps() {
 }
 
 function openAppleMaps() {
+    haptic();
+
     const url =
         `maps://?daddr=${encodeURIComponent(navigationAddress)}`;
 
     window.location.href = url;
+
     closeNavModal();
 }
 
 function openWaze() {
+    haptic();
+
     const url =
         `https://waze.com/ul?q=${encodeURIComponent(navigationAddress)}&navigate=yes`;
 
