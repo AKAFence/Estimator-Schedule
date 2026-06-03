@@ -638,7 +638,6 @@
                     <div><strong>Estimator:</strong> Tom</div>
                     <div><strong>Location:</strong> 3362 Main Street, Birdsboro, PA, USA</div>
                     <div><strong>Contract Date:</strong> 2026-01-16</div>
-                    <div><strong>Notes:</strong> 0</div>
                 </div>
             </div>
             </div>
@@ -726,10 +725,12 @@
         // State
         let apiToken = 'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1OTAwMTUzOSwiYWFpIjoxMSwidWlkIjoxMDMyMTQ4NzcsImlhZCI6IjIwMjYtMDUtMTVUMTQ6NTY6MDguMDAwWiIsInBlciI6Im1lOndyaXRlIiwiYWN0aWQiOjM0OTg5MTQ2LCJyZ24iOiJ1c2UxIn0.Qo7Od1W81aOHJDMCzDmhdJ_-7dAexxnpTN4468PGln0';
         let allJobs = [];
+        let jobMeta = JSON.parse(localStorage.getItem("jobMeta") || "{}");
         let sortOrders = { tom: 'date', brad: 'date', matt: 'date' };
         let completedCollapsed = false;
         let currentJob = null;
         let navigationAddress = '';
+        let installDates = JSON.parse(localStorage.getItem('installDates')) || {};
 // Column collapse state (safe version)
 const columnState = {
     tom: false,
@@ -771,10 +772,20 @@ if (savedColumnState) {
                                         id
                                         title
                                     }
-                                    column_values(ids: ["location_mm326h2a", "date_mm32f8nr", "color_mm32qrk3", "color_mm329n6b", "color_mm32jvn", "color_mm32mdbj", "color_mm321tqd", "color_mm3230va"]) {
-                                        id
-                                        text
-                                    }
+                                   column_values(ids: [
+    "text_mm3zf47z",
+    "date_mm32f8nr",
+    "date_mm3zmjgk",
+    "color_mm32qrk3",
+    "color_mm329n6b",
+    "color_mm32jvn",
+    "color_mm32mdbj",
+    "color_mm321tqd",
+    "color_mm3230va"
+]) {
+    id
+    text
+}
                                     updates {
                                         id
                                     }
@@ -827,32 +838,39 @@ if (savedColumnState) {
         }
 
         function parseJob(item) {
-            const job = {
-                id: item.id,
-                name: item.name,
-                estimator: item.group.title,
-                location: '',
-                date: '',
-                statuses: {},
-                completed: false,
-                noteCount: item.updates.length
-            };
+  const job = {
+    id: item.id,
+    name: item.name,
+    estimator: item.group.title,
+    location: '',
+    date: '',
+    installDate: installDates[item.id] || '',
+    statuses: {},
+    completed: false,
+};
 
             // Parse column values
-            item.column_values.forEach(col => {
-                if (col.id === 'location_mm326h2a') {
-                    job.location = col.text || '';
-                } else if (col.id === 'date_mm32f8nr') {
-                    job.date = col.text || '';
-                } else if (col.id === 'color_mm3230va') {
-                    // Job Complete status
-                    const text = (col.text || '').toLowerCase();
-                    job.completed = text === 'yes' || text === 'done';
-                    job.statuses[col.id] = col.text || '';
-                } else if (STATUS_CONFIG[col.id]) {
-                    job.statuses[col.id] = col.text || '';
-                }
-            });
+item.column_values.forEach(col => {
+    if (!col || !col.id) return;
+
+    if (col.id === 'text_mm3zf47z') {
+        job.location = col.text || '';
+
+    } else if (col.id === 'date_mm32f8nr') {
+        job.date = col.text || '';
+
+    } else if (col.id === 'date_mm3zmjgk') {
+        job.installDate = col.text || '';
+
+    } else if (col.id === 'color_mm3230va') {
+        const text = (col.text || '').toLowerCase();
+        job.completed = text === 'yes' || text === 'done';
+        job.statuses[col.id] = col.text || '';
+
+    } else if (STATUS_CONFIG[col.id]) {
+        job.statuses[col.id] = col.text || '';
+    }
+});
 
             return job;
         }
@@ -899,7 +917,6 @@ if (savedColumnState) {
         function renderColumn(estimator, jobs) {
             const container = document.getElementById(`${estimator}Jobs`);
             container.innerHTML = '';
-
             jobs.forEach(job => {
                 const card = createJobCard(job);
                 container.appendChild(card);
@@ -914,12 +931,6 @@ if (savedColumnState) {
             const nameDiv = document.createElement('div');
             nameDiv.className = 'job-name';
             nameDiv.textContent = job.name;
-            if (job.noteCount > 0) {
-                const badge = document.createElement('span');
-                badge.className = 'note-badge';
-                badge.textContent = job.noteCount;
-                nameDiv.appendChild(badge);
-            }
             card.appendChild(nameDiv);
 
             if (job.location) {
@@ -1022,9 +1033,13 @@ ${job.location ? `
   }
 </div>
 ` : ''}
-                    ${job.date ? `<div><strong>Contract Date:</strong> ${job.date}</div>` : ''}
-                    <div><strong>Notes:</strong> ${job.noteCount}</div>
-                </div>
+                ${job.date ? `<div><strong>Contract Date:</strong> ${job.date}</div>` : ''}
+
+<div>
+  <strong>Install Date:</strong>
+  <input type="date" id="installDateInput" value="${job.installDate || ''}" onchange="saveInstallDate('${job.id}', this.value)" />
+</div>
+
             `;
             document.getElementById('modalJobDetails').innerHTML = detailsHtml;
             
@@ -1206,6 +1221,26 @@ function openWaze() {
         function clearError() {
             document.getElementById('errorContainer').innerHTML = '';
         }
+        function isThisWeek(dateString) {
+    if (!dateString) return false;
+
+    const jobDate = new Date(dateString);
+    const now = new Date();
+
+    // Get start of week (Monday)
+    const startOfWeek = new Date(now);
+    const day = now.getDay();
+    const diffToMonday = (day === 0 ? -6 : 1) - day;
+    startOfWeek.setDate(now.getDate() + diffToMonday);
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    // End of week (Sunday)
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    return jobDate >= startOfWeek && jobDate <= endOfWeek;
+}
 
         // Close modals on outside click
 window.onclick = function(event) {
@@ -1253,6 +1288,16 @@ function applyColumnState() {
             column.classList.remove('collapsed');
         }
     });
+}
+function saveInstallDate(jobId, value) {
+    installDates[jobId] = value;
+    localStorage.setItem('installDates', JSON.stringify(installDates));
+
+    // update local job instantly
+    const job = allJobs.find(j => j.id === jobId);
+    if (job) {
+        job.installDate = value;
+    }
 }
 
     </script>
