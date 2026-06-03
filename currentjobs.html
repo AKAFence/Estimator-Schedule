@@ -61,17 +61,6 @@ body {
     text-decoration: none;
 }
 
-.nav-btn {
-    margin-top: 6px;
-    background: #0073ea;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 12px;
-    cursor: pointer;
-}
-
 /* NAV MODAL */
 .nav-modal {
     display: none;
@@ -142,52 +131,72 @@ body {
 
 <script>
 
-// ===== CONFIG =====
 const BOARD_ID = 18411800966;
-let apiToken = localStorage.getItem('mondayApiToken') || '';
+
+/* 🔥 IMPORTANT FIX:
+   DO NOT rely on localStorage in iOS home-screen apps */
+const apiToken = "eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1OTAwMTUzOSwiYWFpIjoxMSwidWlkIjoxMDMyMTQ4NzcsImlhZCI6IjIwMjYtMDUtMTVUMTQ6NTY6MDguMDAwWiIsInBlciI6Im1lOndyaXRlIiwiYWN0aWQiOjM0OTg5MTQ2LCJyZ24iOiJ1c2UxIn0.Qo7Od1W81aOHJDMCzDmhdJ_-7dAexxnpTN4468PGln0";
+
 let allJobs = [];
 let navigationAddress = "";
 
-// ===== LOAD JOBS =====
+// ================= LOAD JOBS =================
 async function loadJobs() {
 
-    const query = `
-    query {
-        boards(ids: [${BOARD_ID}]) {
-            items_page(limit: 200) {
-                items {
-                    id
-                    name
-                    group { title }
-                    column_values(ids: [
-                        "text_mm3zf47z",
-                        "date_mm3zmjgk"
-                    ]) {
+    try {
+
+        const query = `
+        query {
+            boards(ids: [${BOARD_ID}]) {
+                items_page(limit: 200) {
+                    items {
                         id
-                        text
+                        name
+                        group { title }
+                        column_values(ids: [
+                            "text_mm3zf47z",
+                            "date_mm3zmjgk"
+                        ]) {
+                            id
+                            text
+                        }
                     }
                 }
             }
+        }`;
+
+        const res = await fetch("https://api.monday.com/v2", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": apiToken
+            },
+            body: JSON.stringify({ query })
+        });
+
+        const data = await res.json();
+
+        // 🔥 HANDLE API ERRORS (CRITICAL FOR SAFARI)
+        if (data.errors) {
+            console.log("Monday API Error:", data.errors);
+            document.getElementById("jobsContainer").innerHTML =
+                "<div style='color:red;'>API error loading jobs</div>";
+            return;
         }
-    }`;
 
-    const res = await fetch("https://api.monday.com/v2", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": apiToken
-        },
-        body: JSON.stringify({ query })
-    });
+        const items = data?.data?.boards?.[0]?.items_page?.items || [];
 
-    const data = await res.json();
-    const items = data?.data?.boards?.[0]?.items_page?.items || [];
+        allJobs = items.map(parseJob);
+        renderJobs();
 
-    allJobs = items.map(parseJob);
-    renderJobs();
+    } catch (err) {
+        console.log(err);
+        document.getElementById("jobsContainer").innerHTML =
+            "<div style='color:red;'>Failed to load jobs</div>";
+    }
 }
 
-// ===== PARSE =====
+// ================= PARSE =================
 function parseJob(item) {
     let job = {
         id: item.id,
@@ -205,7 +214,7 @@ function parseJob(item) {
     return job;
 }
 
-// ===== FILTER WEEK =====
+// ================= FILTER =================
 function getCurrentJobs() {
 
     const now = new Date();
@@ -231,7 +240,7 @@ function getCurrentJobs() {
     });
 }
 
-// ===== RENDER =====
+// ================= RENDER =================
 function renderJobs() {
 
     const container = document.getElementById("jobsContainer");
@@ -274,14 +283,14 @@ function renderJobs() {
     });
 }
 
-// ===== TOGGLE =====
+// ================= TOGGLE =================
 function toggleCard(id) {
     const el = document.getElementById(`details-${id}`);
     if (!el) return;
     el.style.display = el.style.display === "block" ? "none" : "block";
 }
 
-// ===== NAV SYSTEM =====
+// ================= NAV =================
 function openNavigation(address) {
     if (!address) return;
     navigationAddress = address;
@@ -313,7 +322,6 @@ function openWaze() {
     closeNavModal();
 }
 
-// close on backdrop click
 document.getElementById("navModal").addEventListener("click", closeNavModal);
 
 // INIT
