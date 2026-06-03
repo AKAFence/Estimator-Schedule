@@ -12,18 +12,13 @@ body {
     font-family: Arial, sans-serif;
     background: #DEB83B;
     min-height: 100vh;
-
-    display: flex;
-    justify-content: center;
 }
 
         .container {
-    text-align: center;
-    max-width: 500px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 10px 0;
-}
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
 
      .banner {
     width: 100%;
@@ -35,14 +30,28 @@ body {
 }
 
         .qr-code {
-    width: 250px;
-    max-width: 80%;
-    margin: 20px 0 10px 0;
-}
+            width: 250px;
+            max-width: 80%;
+            margin-bottom: 20px;
+        }
+
+        .scan-text {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .scan-list {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 35px;
+        }
+
 .job-button {
     display: block;
     width: 80%;
-    margin: 30px auto 0;  /* more balanced */
+    margin: 60px auto 0; /* 👈 pushes it further down */
     background: #000;
     color: #fff;
     text-align: center;
@@ -51,7 +60,7 @@ body {
     font-size: 18px;
     font-weight: 600;
     text-decoration: none;
-    opacity: 0.9;
+    opacity: 0.9; /* optional: makes it less visually dominant */
 }
 
 .job-button:hover {
@@ -61,6 +70,24 @@ body {
         .tracker-button:hover {
             background: #222222;
         }
+        /* 👇 ADD THIS HERE */
+.button-row {
+    display: flex;
+    gap: 12px;
+    width: 80%;
+    margin: 60px auto 0;
+}
+.button-row .job-button {
+    margin: 0;
+    flex: 1;
+}
+.button-row .job-button {
+    margin: 0;
+    flex: 1;
+    white-space: nowrap;
+    font-size: 14px;
+    padding: 14px 10px;
+}
     </style>
 </head>
 <body>
@@ -73,11 +100,15 @@ body {
 
     
 
-      <a href="jobtracker.html" class="job-button">
-    Open Job Tracker
-</a>
+<div class="button-row">
+    <a href="jobtracker.html" class="job-button">
+        Open Job Tracker
+    </a>
 
-    </div>
+    <a href="currentjobs.html" class="job-button">
+        Current Jobs
+    </a>
+</div>
 
 </body>
 </html>
