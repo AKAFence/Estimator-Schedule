@@ -144,7 +144,7 @@ body {
 
 // ===== CONFIG =====
 const BOARD_ID = 18411800966;
-let apiToken = eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1OTAwMTUzOSwiYWFpIjoxMSwidWlkIjoxMDMyMTQ4NzcsImlhZCI6IjIwMjYtMDUtMTVUMTQ6NTY6MDguMDAwWiIsInBlciI6Im1lOndyaXRlIiwiYWN0aWQiOjM0OTg5MTQ2LCJyZ24iOiJ1c2UxIn0.Qo7Od1W81aOHJDMCzDmhdJ_-7dAexxnpTN4468PGln0 || '';
+let apiToken = localStorage.getItem('mondayApiToken') || '';
 let allJobs = [];
 let navigationAddress = "";
 
