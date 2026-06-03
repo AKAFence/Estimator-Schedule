@@ -15,7 +15,331 @@ body {
     margin: 0;
     padding: 10px;
     font-size: 12px;
+    color: #323338;<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Current Jobs</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+    font-family: 'Figtree', sans-serif;
+    background: #f6f7fb;
+    margin: 0;
+    padding: 10px;
+    font-size: 12px;
     color: #323338;
+}
+
+.header {
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.job-card {
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+    box-shadow: 0px 3px 6px rgba(0,0,0,0.08);
+}
+
+.job-name {
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.job-expanded {
+    display: none;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+}
+
+.job-details {
+    font-size: 11px;
+    color: #676879;
+    margin-bottom: 4px;
+}
+
+.nav-link {
+    color: #0073ea;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.nav-btn {
+    margin-top: 6px;
+    background: #0073ea;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* NAV MODAL */
+.nav-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 9999;
+}
+
+.nav-modal.active {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.nav-sheet {
+    width: calc(100% - 16px);
+    max-width: 420px;
+    margin: 0 auto 10px auto;
+
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    border-radius: 20px;
+    padding: 12px;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+
+    animation: slideUp 0.2s ease;
+}
+
+.nav-sheet button {
+    width: 100%;
+    background: #f2f2f7;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    margin-bottom: 6px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">Current Jobs</div>
+<div id="jobsContainer"></div>
+
+<!-- NAV MODAL -->
+<div class="nav-modal" id="navModal">
+    <div class="nav-sheet">
+        <div style="font-weight:700; text-align:center; margin-bottom:10px;">
+            Navigate With
+        </div>
+
+        <button onclick="openGoogleMaps()">Google Maps</button>
+        <button onclick="openAppleMaps()">Apple Maps</button>
+        <button onclick="openWaze()">Waze</button>
+    </div>
+</div>
+
+<script>
+
+// ===== CONFIG =====
+const BOARD_ID = 18411800966;
+let apiToken = localStorage.getItem('mondayApiToken') || '';
+let allJobs = [];
+let navigationAddress = "";
+
+// ===== LOAD JOBS =====
+async function loadJobs() {
+
+    const query = `
+    query {
+        boards(ids: [${BOARD_ID}]) {
+            items_page(limit: 200) {
+                items {
+                    id
+                    name
+                    group { title }
+                    column_values(ids: [
+                        "text_mm3zf47z",
+                        "date_mm3zmjgk"
+                    ]) {
+                        id
+                        text
+                    }
+                }
+            }
+        }
+    }`;
+
+    const res = await fetch("https://api.monday.com/v2", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": apiToken
+        },
+        body: JSON.stringify({ query })
+    });
+
+    const data = await res.json();
+    const items = data?.data?.boards?.[0]?.items_page?.items || [];
+
+    allJobs = items.map(parseJob);
+    renderJobs();
+}
+
+// ===== PARSE =====
+function parseJob(item) {
+    let job = {
+        id: item.id,
+        name: item.name,
+        estimator: item.group?.title || "",
+        location: "",
+        date: ""
+    };
+
+    item.column_values.forEach(col => {
+        if (col.id === "text_mm3zf47z") job.location = col.text || "";
+        if (col.id === "date_mm3zmjgk") job.date = col.text || "";
+    });
+
+    return job;
+}
+
+// ===== FILTER WEEK =====
+function getCurrentJobs() {
+
+    const now = new Date();
+
+    const startOfWeek = new Date(now);
+    const day = now.getDay();
+    const diff = (day === 0 ? -6 : 1) - day;
+
+    startOfWeek.setDate(now.getDate() + diff);
+    startOfWeek.setHours(0,0,0,0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23,59,59,999);
+
+    return allJobs.filter(job => {
+        if (!job.date) return false;
+
+        const [y,m,d] = job.date.split("-");
+        const jobDate = new Date(y, m-1, d);
+
+        return jobDate >= startOfWeek && jobDate <= endOfWeek;
+    });
+}
+
+// ===== RENDER =====
+function renderJobs() {
+
+    const container = document.getElementById("jobsContainer");
+    container.innerHTML = "";
+
+    const jobs = getCurrentJobs();
+
+    if (!jobs.length) {
+        container.innerHTML = "<div>No jobs this week</div>";
+        return;
+    }
+
+    jobs.forEach(job => {
+
+        const card = document.createElement("div");
+        card.className = "job-card";
+
+        card.innerHTML = `
+            <div class="job-name" onclick="toggleCard('${job.id}')">
+                ${job.name}
+            </div>
+
+            <div class="job-details">
+                📅 ${job.date ? new Date(job.date).toLocaleDateString() : "No date"}
+            </div>
+
+            <div id="details-${job.id}" class="job-expanded">
+
+                <div class="job-details nav-link"
+                    onclick="openNavigation('${job.location}')">
+                    📍 ${job.location || "No location"}
+                </div>
+
+                <div class="job-details">👷 ${job.estimator}</div>
+
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+// ===== TOGGLE =====
+function toggleCard(id) {
+    const el = document.getElementById(`details-${id}`);
+    if (!el) return;
+    el.style.display = el.style.display === "block" ? "none" : "block";
+}
+
+// ===== NAV SYSTEM =====
+function openNavigation(address) {
+    if (!address) return;
+    navigationAddress = address;
+    document.getElementById("navModal").classList.add("active");
+}
+
+function closeNavModal() {
+    document.getElementById("navModal").classList.remove("active");
+}
+
+function openGoogleMaps() {
+    window.open(
+        `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(navigationAddress)}`,
+        "_blank"
+    );
+    closeNavModal();
+}
+
+function openAppleMaps() {
+    window.location.href = `maps://?daddr=${encodeURIComponent(navigationAddress)}`;
+    closeNavModal();
+}
+
+function openWaze() {
+    window.open(
+        `https://waze.com/ul?q=${encodeURIComponent(navigationAddress)}&navigate=yes`,
+        "_blank"
+    );
+    closeNavModal();
+}
+
+// close on backdrop click
+document.getElementById("navModal").addEventListener("click", closeNavModal);
+
+// INIT
+loadJobs();
+
+</script>
+
+</body>
+</html>
 }
 
 .header {
