@@ -230,14 +230,21 @@ function getCurrentJobs() {
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     endOfWeek.setHours(23,59,59,999);
 
-    return allJobs.filter(job => {
-        if (!job.date) return false;
+    return allJobs
+        .filter(job => {
+            if (!job.date) return false;
 
-        const [y,m,d] = job.date.split("-");
-        const jobDate = new Date(y, m-1, d);
+            const [y, m, d] = job.date.split("-");
+            const jobDate = new Date(y, m - 1, d);
 
-        return jobDate >= startOfWeek && jobDate <= endOfWeek;
-    });
+            return jobDate >= startOfWeek && jobDate <= endOfWeek;
+        })
+        .sort((a, b) => {
+            const [ay, am, ad] = a.date.split("-");
+            const [by, bm, bd] = b.date.split("-");
+
+            return new Date(ay, am - 1, ad) - new Date(by, bm - 1, bd);
+        });
 }
 
 // ================= RENDER =================
@@ -263,9 +270,9 @@ function renderJobs() {
                 ${job.name}
             </div>
 
-            <div class="job-details">
-                📅 ${job.date ? new Date(job.date).toLocaleDateString() : "No date"}
-            </div>
+           <div class="job-details">
+    📅 ${formatLocalDate(job.date)}
+</div>
 
             <div id="details-${job.id}" class="job-expanded">
 
@@ -323,7 +330,20 @@ function openWaze() {
 }
 
 document.getElementById("navModal").addEventListener("click", closeNavModal);
+function formatLocalDate(dateString) {
+    if (!dateString) return "No date";
 
+    const [y, m, d] = dateString.split("-").map(Number);
+    const date = new Date(y, m - 1, d);
+
+    return date.toLocaleDateString();
+}
+function parseLocalDate(dateString) {
+    if (!dateString) return null;
+
+    const [y, m, d] = dateString.split("-").map(Number);
+    return new Date(y, m - 1, d);
+}
 // INIT
 loadJobs();
 
