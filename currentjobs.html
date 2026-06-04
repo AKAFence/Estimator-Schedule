@@ -1,29 +1,114 @@
-document.getElementById("weekLabel").innerHTML =
-    `<div style="
-        text-align:center;
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        line-height:1.2;
-    ">
-        <div style="
-            font-size:12px;
-            font-weight:600;
-            color:#d64545;
-            padding:4px 10px;
-            border-radius:999px;
-            background:#ffecec;
-            margin-bottom:3px;
-        ">
-            ${labelText}
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AKA Fence</title>
 
-        <div style="
-            font-size:10px;
-            color:#8a8f99;
-            font-weight:400;
-        ">
-            ${start.toLocaleDateString()} - ${end.toLocaleDateString()}
-        </div>
-    </div>`;
+    <style>
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: #DEB83B;
+    min-height: 100vh;
+}
+
+        .container {
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+     .banner {
+    width: 100%;
+    display: block;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+        .qr-code {
+            width: 250px;
+            max-width: 80%;
+            margin-bottom: 20px;
+        }
+
+        .scan-text {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .scan-list {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 35px;
+        }
+
+.job-button {
+    display: block;
+    width: 80%;
+    margin: 60px auto 0; /* 👈 pushes it further down */
+    background: #000;
+    color: #fff;
+    text-align: center;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    text-decoration: none;
+    opacity: 0.9; /* optional: makes it less visually dominant */
+}
+
+.job-button:hover {
+    opacity: 1;
+}
+
+        .tracker-button:hover {
+            background: #222222;
+        }
+        /* 👇 ADD THIS HERE */
+.button-row {
+    display: flex;
+    gap: 12px;
+    width: 80%;
+    margin: 60px auto 0;
+}
+.button-row .job-button {
+    margin: 0;
+    flex: 1;
+}
+.button-row .job-button {
+    margin: 0;
+    flex: 1;
+    white-space: nowrap;
+    font-size: 14px;
+    padding: 14px 10px;
+}
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <img src="banner.png" class="banner">
+
+        <img src="qr-code.png" class="qr-code">
+
+    
+
+<div class="button-row">
+    <a href="jobtracker.html" class="job-button">
+        Open Job Tracker
+    </a>
+
+    <a href="currentjobs.html" class="job-button">
+        Current Jobs
+    </a>
+</div>
+
+</body>
+</html>
