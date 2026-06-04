@@ -266,28 +266,55 @@ body {
     0% { background-position: 100% 0; }
     100% { background-position: -100% 0; }
 }
+#screen {
+    transition: transform 0.28s ease, opacity 0.28s ease;
+    will-change: transform;
+}
+
+.slide-left-out {
+    transform: translateX(-30px);
+    opacity: 0;
+}
+
+.slide-right-out {
+    transform: translateX(30px);
+    opacity: 0;
+}
+
+.slide-in {
+    transform: translateX(0);
+    opacity: 1;
+}
+#screen {
+    transition: transform 0s;
+    will-change: transform;
+}
 </style>
 </head>
 
 <body>
 
-<div class="header">
-    <div style="text-align:center;font-size:18px;font-weight:700;margin-bottom:8px;">
-        Current Jobs
+<div id="screen">
+
+    <div class="header">
+        <div style="text-align:center;font-size:18px;font-weight:700;margin-bottom:8px;">
+            Current Jobs
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <button class="nav-arrow" onclick="changeWeek(-1)">◀</button>
+
+            <div id="weekLabel"></div>
+
+            <button class="nav-arrow" onclick="changeWeek(1)">▶</button>
+        </div>
     </div>
 
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-        <button class="nav-arrow" onclick="changeWeek(-1)">◀</button>
+    <div id="jobsContainer"></div>
 
-        <div id="weekLabel"></div>
-
-        <button class="nav-arrow" onclick="changeWeek(1)">▶</button>
-    </div>
 </div>
 
-<div id="jobsContainer"></div>
-
-<!-- NAV MODAL -->
+<!-- NAV MODAL (OUTSIDE SCREEN) -->
 <div class="nav-modal" id="navModal">
     <div class="nav-sheet">
         <div style="font-weight:700;text-align:center;margin-bottom:10px;">
@@ -300,8 +327,13 @@ body {
     </div>
 </div>
 
-<script>
+</body>
 
+<script>
+let isDragging = false;
+let startX = 0;
+let currentX = 0;
+let translateX = 0;
 let weekOffset = 0;
 const BOARD_ID = 18411800966;
 
@@ -524,8 +556,26 @@ function refreshUI() {
 
 // ================= WEEK CHANGE =================
 function changeWeek(direction) {
-    weekOffset += direction;
-    refreshUI();
+
+    const screen = document.getElementById("screen");
+
+    // animate OUT first
+    screen.classList.add(direction === 1 ? "slide-left-out" : "slide-right-out");
+
+    setTimeout(() => {
+
+        weekOffset += direction;
+
+        renderJobs();
+        updateWeekLabel();
+
+        // reset position instantly
+        screen.classList.remove("slide-left-out", "slide-right-out");
+
+        // force reflow so animation can replay next time
+        void screen.offsetWidth;
+
+    }, 180);
 }
 
 // ================= TOGGLE =================
@@ -585,27 +635,44 @@ document.addEventListener("visibilitychange", () => {
 });
 let touchStartX = 0;
 let touchEndX = 0;
+let touchStartY = 0;
+let touchEndY = 0;
+const screen = document.getElementById("screen");
 
-document.addEventListener("touchstart", (e) => {
+screen.addEventListener("touchstart", (e) => {
     touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
 });
 
-document.addEventListener("touchend", (e) => {
+screen.addEventListener("touchend", (e) => {
     touchEndX = e.changedTouches[0].screenX;
+    touchEndY = e.changedTouches[0].screenY;
     handleSwipe();
 });
 
 function handleSwipe() {
-    const diff = touchEndX - touchStartX;
+    const diffX = touchEndX - touchStartX;
+    const diffY = touchEndY - touchStartY;
 
-    if (Math.abs(diff) < 60) return;
+    // ignore small gestures
+    if (Math.abs(diffX) < 60) return;
 
-    if (diff > 0) {
+    // ignore vertical scroll gestures
+    if (Math.abs(diffY) > Math.abs(diffX)) return;
+
+    if (diffX > 0) {
         changeWeek(-1);
     } else {
         changeWeek(1);
     }
 }
+loadJobs();
+updateWeekLabel(); // if you're calling it
+
+window.addEventListener("load", () => {
+    const screen = document.getElementById("screen");
+    screen.classList.add("slide-in");
+});
 </script>
 
 </body>
