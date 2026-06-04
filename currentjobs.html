@@ -285,10 +285,7 @@ body {
     transform: translateX(0);
     opacity: 1;
 }
-#screen {
-    transition: transform 0s;
-    will-change: transform;
-}
+
 </style>
 </head>
 
@@ -372,9 +369,10 @@ async function loadJobs() {
                     name
                     group { title }
                     column_values(ids: [
-                        "text_mm3zf47z",
-                        "date_mm3zmjgk"
-                    ]) {
+    "text_mm3zf47z",
+    "date_mm3zmjgk",
+    "long_text_mm40xxhd"
+]) {
                         id
                         text
                     }
@@ -403,17 +401,24 @@ async function loadJobs() {
 // ================= PARSE =================
 function parseJob(item) {
     let job = {
-        id: item.id,
-        name: item.name,
-        location: "",
-        date: "",
-        estimator: item.group?.title || ""
-    };
+    id: item.id,
+    name: item.name,
+    estimator: item.group?.title || "",
+    location: "",
+    date: "",
+    description: ""
+};
 
     item.column_values.forEach(col => {
-        if (col.id === "text_mm3zf47z") job.location = col.text || "";
-        if (col.id === "date_mm3zmjgk") job.date = col.text || "";
-    });
+    if (col.id === "text_mm3zf47z")
+        job.location = col.text || "";
+
+    if (col.id === "date_mm3zmjgk")
+        job.date = col.text || "";
+
+    if (col.id === "long_text_mm40xxhd")
+        job.description = col.text || "";
+});
 
     return job;
 }
@@ -473,10 +478,22 @@ function renderJobs() {
             </div>
 
             <div class="job-details">
-                📅 ${formatDate(job.date)}
-            </div>
+    📅 ${formatDate(job.date)}
+</div>
 
-            <div id="details-${job.id}" class="job-expanded">
+${job.description ? `
+<div class="job-details" style="
+    margin-top:6px;
+    padding:6px 8px;
+    background:#f8f9fc;
+    border-radius:6px;
+    color:#555;
+">
+    📝 ${job.description}
+</div>
+` : ""}
+
+<div id="details-${job.id}" class="job-expanded">
 
                 <div class="job-details nav-link"
                     onclick="openNavigation('${job.location}')">
