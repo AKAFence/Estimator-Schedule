@@ -16,15 +16,26 @@ body {
     font-size: 12px;
     color: #323338;
 }
-
+body {
+    -webkit-overflow-scrolling: touch;
+}
 .header {
-    background: white;
-    padding: 10px;
-    border-radius: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    border-radius: 14px;
     margin-bottom: 10px;
+
+    padding: 12px;
+
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+
     font-family: 'Poppins', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
 }
 
 .job-card {
@@ -34,7 +45,17 @@ body {
     margin-bottom: 8px;
     box-shadow: 0px 3px 6px rgba(0,0,0,0.08);
 }
+#jobsContainer {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}.slide-out-left {
+    transform: translateX(-40px);
+    opacity: 0;
+}
 
+.slide-out-right {
+    transform: translateX(40px);
+    opacity: 0;
+}
 .job-name {
     font-weight: 700;
     font-size: 13px;
@@ -108,13 +129,165 @@ body {
     from { transform: translateY(100%); }
     to { transform: translateY(0); }
 }
+#weekLabel {
+    font-size: 12px;
+    font-weight: 500;
+    color: #8a8f99;
+.header button {
+    font-size: 14px;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+#weekLabel div:first-child {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: #ffecec;
+    color: #d64545;
+    font-size: 13px;
+    font-weight: 600;
+}
+.header button {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: none;
+
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+
+    font-size: 14px;
+    font-weight: 600;
+    color: #323338;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    transition: all 0.15s ease;
+}
+.header button:active {
+    transform: scale(0.92);
+    background: #f2f2f7;
+}
+.header button {
+    margin: 0 4px;
+}
+.week-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.week-pill {
+    flex: 1;
+    text-align: center;
+    background: #eef2ff;
+    color: #2f3a8f;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.nav-arrow {
+    background: white;
+    border: 1px solid #ddd;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+}
+.slide-left {
+    animation: slideLeft 0.25s ease;
+}
+
+.slide-right {
+    animation: slideRight 0.25s ease;
+}
+
+@keyframes slideLeft {
+    from { transform: translateX(25px); opacity: 0.4; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideRight {
+    from { transform: translateX(-25px); opacity: 0.4; }
+    to { transform: translateX(0); opacity: 1; }
+}
+.nav-arrow {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-arrow:active {
+    transform: scale(0.95);
+}
+.shimmer-card {
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.shimmer {
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(
+        90deg,
+        #f3f4f6 25%,
+        #e5e7eb 37%,
+        #f3f4f6 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmerMove 1.2s ease infinite;
+    margin-bottom: 8px;
+}
+
+@keyframes shimmerMove {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+}
 </style>
 </head>
 
 <body>
 
-<div class="header">Current Jobs</div>
-<div id="jobsContainer"></div>
+<div id="screen">
+    <div class="header">
+        <div style="text-align:center;margin-bottom:8px;font-size:18px;font-weight:700;">
+    Current Jobs
+</div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <button class="nav-arrow" onclick="changeWeek(-1)">◀</button>
+
+            <div id="weekLabel" style="text-align:center;flex:1;"></div>
+
+            <button class="nav-arrow" onclick="changeWeek(1)">▶</button>
+        </div>
+    </div>
+
+    <div id="jobsContainer"></div>
+</div>
 
 <!-- NAV MODAL -->
 <div class="nav-modal" id="navModal">
@@ -130,19 +303,34 @@ body {
 </div>
 
 <script>
-
+let weekOffset = 0;
 const BOARD_ID = 18411800966;
-
+let lastDirection = 1;
 /* 🔥 IMPORTANT FIX:
    DO NOT rely on localStorage in iOS home-screen apps */
 const apiToken = "eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1OTAwMTUzOSwiYWFpIjoxMSwidWlkIjoxMDMyMTQ4NzcsImlhZCI6IjIwMjYtMDUtMTVUMTQ6NTY6MDguMDAwWiIsInBlciI6Im1lOndyaXRlIiwiYWN0aWQiOjM0OTg5MTQ2LCJyZ24iOiJ1c2UxIn0.Qo7Od1W81aOHJDMCzDmhdJ_-7dAexxnpTN4468PGln0";
 
 let allJobs = [];
 let navigationAddress = "";
-
+let lastWeekSignature = "";
 // ================= LOAD JOBS =================
-async function loadJobs() {
+function showLoading() {
 
+    const container = document.getElementById("jobsContainer");
+    container.innerHTML = "";
+
+    for (let i = 0; i < 5; i++) {
+        container.innerHTML += `
+            <div class="shimmer-card">
+                <div class="shimmer" style="width:60%"></div>
+                <div class="shimmer" style="width:90%"></div>
+                <div class="shimmer" style="width:40%"></div>
+            </div>
+        `;
+    }
+}
+async function loadJobs() {
+showLoading();
     try {
 
         const query = `
@@ -164,7 +352,12 @@ async function loadJobs() {
                 }
             }
         }`;
-
+function getWeekSignature(jobs) {
+    return jobs
+        .map(j => `${j.id}-${j.date}`)
+        .sort()
+        .join("|");
+}
         const res = await fetch("https://api.monday.com/v2", {
             method: "POST",
             headers: {
@@ -187,7 +380,15 @@ async function loadJobs() {
         const items = data?.data?.boards?.[0]?.items_page?.items || [];
 
         allJobs = items.map(parseJob);
-        renderJobs();
+
+const currentWeekJobs = getCurrentJobs();
+const newSignature = getWeekSignature(currentWeekJobs);
+
+// only re-render if something changed in THIS week
+if (newSignature !== lastWeekSignature) {
+    lastWeekSignature = newSignature;
+    renderJobs();
+};
 
     } catch (err) {
         console.log(err);
@@ -195,7 +396,12 @@ async function loadJobs() {
             "<div style='color:red;'>Failed to load jobs</div>";
     }
 }
+const container = document.getElementById("jobsContainer");
 
+container.classList.remove("slide-left", "slide-right");
+void container.offsetWidth; // forces restart of animation
+
+container.classList.add(lastDirection === 1 ? "slide-left" : "slide-right");
 // ================= PARSE =================
 function parseJob(item) {
     let job = {
@@ -223,7 +429,9 @@ function getCurrentJobs() {
     const day = now.getDay();
     const diff = (day === 0 ? -6 : 1) - day;
 
-    startOfWeek.setDate(now.getDate() + diff);
+    startOfWeek.setDate(
+        now.getDate() + diff + (weekOffset * 7)
+    );
     startOfWeek.setHours(0,0,0,0);
 
     const endOfWeek = new Date(startOfWeek);
@@ -243,7 +451,8 @@ function getCurrentJobs() {
             const [ay, am, ad] = a.date.split("-");
             const [by, bm, bd] = b.date.split("-");
 
-            return new Date(ay, am - 1, ad) - new Date(by, bm - 1, bd);
+            return new Date(ay, am - 1, ad) -
+                   new Date(by, bm - 1, bd);
         });
 }
 
@@ -256,7 +465,8 @@ function renderJobs() {
     const jobs = getCurrentJobs();
 
     if (!jobs.length) {
-        container.innerHTML = "<div>No jobs this week</div>";
+        container.innerHTML =
+            "<div>No jobs scheduled for this week</div>";
         return;
     }
 
@@ -270,9 +480,9 @@ function renderJobs() {
                 ${job.name}
             </div>
 
-           <div class="job-details">
-    📅 ${formatLocalDate(job.date)}
-</div>
+            <div class="job-details">
+                📅 ${formatLocalDate(job.date)}
+            </div>
 
             <div id="details-${job.id}" class="job-expanded">
 
@@ -281,7 +491,9 @@ function renderJobs() {
                     📍 ${job.location || "No location"}
                 </div>
 
-                <div class="job-details">👷 ${job.estimator}</div>
+                <div class="job-details">
+                    👷 ${job.estimator}
+                </div>
 
             </div>
         `;
@@ -345,8 +557,105 @@ function parseLocalDate(dateString) {
     return new Date(y, m - 1, d);
 }
 // INIT
+function changeWeek(direction) {
+
+    const container = document.getElementById("jobsContainer");
+
+    // animate OUT first
+    container.classList.add(direction === 1 ? "slide-out-left" : "slide-out-right");
+
+    setTimeout(() => {
+
+        weekOffset += direction;
+
+        renderJobs();
+        updateWeekLabel();
+
+        // reset instantly before next frame
+        container.classList.remove("slide-out-left", "slide-out-right");
+
+    }, 200);
+}
+loadJobs().then(updateWeekLabel);
+function updateWeekLabel() {
+
+    const now = new Date();
+
+    const start = new Date(now);
+    const day = start.getDay();
+    const diff = (day === 0 ? -6 : 1) - day;
+
+    start.setDate(start.getDate() + diff + (weekOffset * 7));
+
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+
+    let labelText = "";
+
+    if (weekOffset === 0) {
+        labelText = "This Week";
+    } else if (weekOffset === -1) {
+        labelText = "Last Week";
+    } else if (weekOffset === 1) {
+        labelText = "Next Week";
+    } else if (weekOffset < -1) {
+        labelText = `${Math.abs(weekOffset)} Weeks Back`;
+    } else {
+        labelText = `${weekOffset} Weeks Ahead`;
+    }
+
+    document.getElementById("weekLabel").innerHTML =
+    `<div style="
+        font-size:12px;
+        font-weight:500;
+        color:#6b7280;
+        line-height:1.2;
+    ">
+        ${labelText}
+    </div>
+    <div style="
+        font-size:10px;
+        color:#6b7280;
+        font-weight:400;
+    ">
+        ${start.toLocaleDateString()} - ${end.toLocaleDateString()}
+    </div>`;
+}
+let touchStartX = 0;
+let touchEndX = 0;
+
+document.addEventListener("touchstart", (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+});
+
+document.addEventListener("touchend", (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+});
+
+function handleSwipe() {
+    const diff = touchEndX - touchStartX;
+
+    // swipe threshold (prevents accidental triggers)
+    if (Math.abs(diff) < 60) return;
+
+    if (diff > 0) {
+        // swipe right → previous week
+        changeWeek(-1);
+    } else {
+        // swipe left → next week
+        changeWeek(1);
+    }
+}
 loadJobs();
 
+setInterval(loadJobs, 120000); // every 2 min
+
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+        loadJobs();
+    }
+});
 </script>
 
 </body>
