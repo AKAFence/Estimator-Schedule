@@ -60,6 +60,11 @@ body {
     font-weight: 700;
     font-size: 13px;
     cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
 }
 
 .job-expanded {
@@ -133,19 +138,6 @@ body {
     font-size: 12px;
     font-weight: 500;
     color: #8a8f99;
-.header button {
-    font-size: 14px;
-    padding: 4px 10px;
-    border-radius: 6px;
-}
-#weekLabel div:first-child {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 999px;
-    background: #ffecec;
-    color: #d64545;
-    font-size: 13px;
-    font-weight: 600;
 }
 .header button {
     width: 34px;
@@ -267,8 +259,7 @@ body {
     100% { background-position: -100% 0; }
 }
 #screen {
-    transition: transform 0.28s ease, opacity 0.28s ease;
-    will-change: transform;
+    opacity: 1;
 }
 
 .slide-left-out {
@@ -285,7 +276,27 @@ body {
     transform: translateX(0);
     opacity: 1;
 }
+.repair-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
+    width: 20px;
+    height: 20px;
+
+    background: #fff4e5;
+    color: #c56a00;
+
+    border-radius: 50%;
+    font-size: 11px;
+
+    flex-shrink: 0;
+}
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
 </style>
 </head>
 
@@ -401,24 +412,25 @@ async function loadJobs() {
 // ================= PARSE =================
 function parseJob(item) {
     let job = {
-    id: item.id,
-    name: item.name,
-    estimator: item.group?.title || "",
-    location: "",
-    date: "",
-    description: ""
-};
+        id: item.id,
+        name: item.name,
+        estimator: item.group?.title || "",
+        isRepair: item.group?.title?.trim() === "Repair Jobs",
+        location: "",
+        date: "",
+        description: ""
+    };
 
     item.column_values.forEach(col => {
-    if (col.id === "text_mm3zf47z")
-        job.location = col.text || "";
+        if (col.id === "text_mm3zf47z")
+            job.location = col.text || "";
 
-    if (col.id === "date_mm3zmjgk")
-        job.date = col.text || "";
+        if (col.id === "date_mm3zmjgk")
+            job.date = col.text || "";
 
-    if (col.id === "long_text_mm40xxhd")
-        job.description = col.text || "";
-});
+        if (col.id === "long_text_mm40xxhd")
+            job.description = col.text || "";
+    });
 
     return job;
 }
@@ -473,9 +485,11 @@ function renderJobs() {
         card.className = "job-card";
 
         card.innerHTML = `
-            <div class="job-name" onclick="toggleCard('${job.id}')">
-                ${job.name}
-            </div>
+  <div class="job-name" onclick="toggleCard('${job.id}')">
+    ${job.name}
+
+    ${job.isRepair ? '<span class="repair-badge">🔨</span>' : ''}
+</div>
 
             <div class="job-details">
     📅 ${formatDate(job.date)}
@@ -686,10 +700,6 @@ function handleSwipe() {
 loadJobs();
 updateWeekLabel(); // if you're calling it
 
-window.addEventListener("load", () => {
-    const screen = document.getElementById("screen");
-    screen.classList.add("slide-in");
-});
 </script>
 
 </body>
