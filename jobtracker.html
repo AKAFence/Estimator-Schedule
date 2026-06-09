@@ -730,7 +730,6 @@
         let completedCollapsed = false;
         let currentJob = null;
         let navigationAddress = '';
-        let installDates = JSON.parse(localStorage.getItem('installDates')) || {};
 // Column collapse state (safe version)
 const columnState = {
     tom: false,
@@ -776,6 +775,7 @@ if (savedColumnState) {
     "text_mm3zf47z",
     "date_mm32f8nr",
     "date_mm3zmjgk",
+    "date_mm45r6e3",
     "color_mm32qrk3",
     "color_mm329n6b",
     "color_mm32jvn",
@@ -844,7 +844,8 @@ if (savedColumnState) {
     estimator: item.group.title,
     location: '',
     date: '',
-    installDate: installDates[item.id] || '',
+    installDate: '',
+endDate: '',
     statuses: {},
     completed: false,
 };
@@ -861,6 +862,9 @@ item.column_values.forEach(col => {
 
     } else if (col.id === 'date_mm3zmjgk') {
         job.installDate = col.text || '';
+
+    } else if (col.id === 'date_mm45r6e3') {
+    job.endDate = col.text || '';    
 
     } else if (col.id === 'color_mm3230va') {
         const text = (col.text || '').toLowerCase();
@@ -1039,7 +1043,13 @@ ${job.location ? `
   <strong>Install Date:</strong>
   <input type="date" id="installDateInput" value="${job.installDate || ''}" onchange="saveInstallDate('${job.id}', this.value)" />
 </div>
-
+<div>
+  <strong>End Date:</strong>
+  <input type="date"
+         id="endDateInput"
+         value="${job.endDate || ''}"
+         onchange="saveEndDate('${job.id}', this.value)" />
+</div>
             `;
             document.getElementById('modalJobDetails').innerHTML = detailsHtml;
             
@@ -1289,17 +1299,67 @@ function applyColumnState() {
         }
     });
 }
-function saveInstallDate(jobId, value) {
-    installDates[jobId] = value;
-    localStorage.setItem('installDates', JSON.stringify(installDates));
+async function updateDateColumn(jobId, columnId, value) {
+    const query = `
+        mutation {
+            change_column_value(
+                board_id: ${BOARD_ID},
+                item_id: ${jobId},
+                column_id: "${columnId}",
+                value: "{\\"date\\":\\"${value}\\"}"
+            ) {
+                id
+            }
+        }
+    `;
 
-    // update local job instantly
-    const job = allJobs.find(j => j.id === jobId);
-    if (job) {
-        job.installDate = value;
+    try {
+        const res = await fetch("https://api.monday.com/v2", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": apiToken
+            },
+            body: JSON.stringify({ query })
+        });
+
+        const data = await res.json();
+
+        if (data.errors) {
+            throw new Error(data.errors[0].message);
+        }
+
+        // IMPORTANT: refresh from Monday so UI is correct
+        await loadJobs();
+
+if (currentJob) {
+    const fresh = allJobs.find(j => j.id === currentJob.id);
+    if (fresh) {
+        currentJob = fresh;
+        openJobModal(currentJob);
     }
 }
 
+    } catch (err) {
+        console.error(err);
+        showError("Failed to update date in Monday");
+    }
+}
+function saveInstallDate(jobId, value) {
+    if (currentJob && currentJob.id === jobId) {
+        currentJob.installDate = value;
+    }
+
+    updateDateColumn(jobId, "date_mm3zmjgk", value);
+}
+
+function saveEndDate(jobId, value) {
+    if (currentJob && currentJob.id === jobId) {
+        currentJob.endDate = value;
+    }
+
+    updateDateColumn(jobId, "date_mm45r6e3", value);
+}
     </script>
 
 </body></html>
