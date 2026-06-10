@@ -515,6 +515,60 @@ html, body {
 
   </div>
 </div>
+
+
+<div id="jobDetailModal" class="nav-modal">
+    <div class="nav-sheet">
+
+        <div style="font-weight:700;font-size:18px;margin-bottom:10px;">
+            Job Details
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <strong>Customer</strong>
+            <div id="detailName"></div>
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <strong>Address</strong>
+            <div id="detailAddress"></div>
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <strong>Phone</strong>
+            <div id="detailPhone"></div>
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <strong>Description</strong>
+            <div id="detailDescription"></div>
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <strong>Laborers</strong>
+
+            <select id="detailLaborers" style="
+                width:100%;
+                padding:10px;
+                border-radius:8px;
+                border:1px solid #ddd;
+            ">
+                <option value="1">1 Laborer</option>
+                <option value="2">2 Laborers</option>
+                <option value="3">3 Laborers</option>
+                <option value="4">4 Laborers</option>
+                <option value="5">5 Laborers</option>
+            </select>
+        </div>
+
+        <button onclick="saveLaborers()">
+            Save
+        </button>
+
+    </div>
+</div>
+
+
 <!-- PUT OFF DAY MODAL RIGHT HERE -->
 <div id="offDayModal" class="nav-modal">
   <div class="nav-sheet">
@@ -765,7 +819,7 @@ function renderJobs() {
         card.className = "job-card";
 
         card.innerHTML = `
-  <div class="job-name" onclick="toggleCard('${job.id}')">
+  <div class="job-name" onclick="openJobDetail('${job.id}')">
     ${job.name}
 
     ${job.isRepair ? '<span class="repair-badge">🔨</span>' : ''}
@@ -1012,6 +1066,55 @@ function formatDate(dateString) {
     return new Date(y,m-1,d).toLocaleDateString();
 }
 
+// ================== Job Details ================
+function openJobDetail(jobId) {
+
+    currentJob = allJobs.find(j => j.id == jobId);
+
+    if (!currentJob) return;
+
+    document.getElementById("detailName").innerText =
+        currentJob.name || "";
+
+    document.getElementById("detailAddress").innerText =
+        currentJob.location || "";
+
+    document.getElementById("detailPhone").innerText =
+        currentJob.phone || "Not Available";
+
+    document.getElementById("detailDescription").innerText =
+        currentJob.description || "";
+
+    document.getElementById("detailLaborers").value =
+        currentJob.laborers || 1;
+
+    document
+        .getElementById("jobDetailModal")
+        .classList.add("active");
+}
+
+function saveLaborers() {
+
+    if (!currentJob) return;
+
+    currentJob.laborers =
+        document.getElementById("detailLaborers").value;
+
+    document
+        .getElementById("jobDetailModal")
+        .classList.remove("active");
+
+    showToast("Laborers Updated ✔");
+}
+document.getElementById("jobDetailModal")
+.addEventListener("click", (e) => {
+
+    if (e.target.id === "jobDetailModal") {
+        document
+            .getElementById("jobDetailModal")
+            .classList.remove("active");
+    }
+});
 // ================= INIT =================
 loadJobs();
 loadOffDays();
@@ -1411,8 +1514,10 @@ const dayOffs = offDays.filter(o => {
 
     const color = getEstimatorColor(job.originalEstimator || job.estimator);
 
-    return `
-        <div style="
+ return `
+    <div
+        onclick="openJobDetail('${job.id}')"
+        style="
             background:${color}15;
             border-left:3px solid ${color};
             padding:2px 4px;
@@ -1422,10 +1527,12 @@ const dayOffs = offDays.filter(o => {
             white-space:nowrap;
             overflow:hidden;
             text-overflow:ellipsis;
-        ">
-            ${job.name}
-        </div>
-    `;
+            cursor:pointer;
+        "
+    >
+        ${job.name} (${job.laborers || 1}👷)
+    </div>
+`;
 }).join("")}
 
 </div>
