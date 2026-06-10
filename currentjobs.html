@@ -400,6 +400,8 @@ body {
     animation: slideUp 0.2s ease;
 }
 html, body {
+    margin: 0;
+    padding: 0;
     height: 100%;
 }
 
@@ -432,6 +434,13 @@ html, body {
 @media (min-width: 769px) {
     #weekView { display: none; }
     #calendarView { display: block; }
+}
+#calendarView {
+    height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+#screen {
+    padding-bottom: 90px; /* room for floating buttons */
 }
 </style>
 </head>
