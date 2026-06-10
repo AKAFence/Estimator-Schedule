@@ -693,11 +693,13 @@ async function loadJobs() {
                     id
                     name
                     group { title }
-                    column_values(ids: [
+    column_values(ids: [
     "text_mm3zf47z",
     "date_mm3zmjgk",
     "date_mm45r6e3",
-    "long_text_mm40xxhd"
+    "long_text_mm40xxhd",
+    "phone_mm46pnbc",
+    "numeric_mm46tmad"
 ]) {
                         id
                         text
@@ -740,25 +742,40 @@ function parseJob(item) {
     else estimator = "unknown";
 
     const job = {
-        id: item.id,
-        name,
-        estimator,
-        originalEstimator: estimator,
-        group: groupRaw,
-        isRepair: groupRaw.includes("repair"),
-        location: "",
-        date: "",
-        description: ""
-    };
+    id: item.id,
+    name,
+    estimator,
+    originalEstimator: estimator,
+    group: groupRaw,
+    isRepair: groupRaw.includes("repair"),
 
-    item.column_values.forEach(col => {
-    if (col.id === "text_mm3zf47z") job.location = col.text || "";
+    location: "",
+    phone: "",
+    laborers: 1,
 
-    if (col.id === "date_mm3zmjgk") job.date = col.text || "";
+    date: "",
+    description: ""
+};
 
-    if (col.id === "date_mm45r6e3") job.endDate = col.text || "";
+   item.column_values.forEach(col => {
 
-    if (col.id === "long_text_mm40xxhd") job.description = col.text || "";
+    if (col.id === "text_mm3zf47z")
+        job.location = col.text || "";
+
+    if (col.id === "date_mm3zmjgk")
+        job.date = col.text || "";
+
+    if (col.id === "date_mm45r6e3")
+        job.endDate = col.text || "";
+
+    if (col.id === "long_text_mm40xxhd")
+        job.description = col.text || "";
+
+    if (col.id === "phone_mm46pnbc")
+        job.phone = col.text || "";
+
+    if (col.id === "numeric_mm46tmad")
+        job.laborers = col.text || "1";
 });
 
 // normalize missing values
@@ -1079,8 +1096,12 @@ function openJobDetail(jobId) {
     document.getElementById("detailAddress").innerText =
         currentJob.location || "";
 
-    document.getElementById("detailPhone").innerText =
-        currentJob.phone || "Not Available";
+    document.getElementById("detailPhone").innerHTML =
+    currentJob.phone
+        ? `<a href="tel:${currentJob.phone}">
+             ${currentJob.phone}
+           </a>`
+        : "Not Available";
 
     document.getElementById("detailDescription").innerText =
         currentJob.description || "";
@@ -1619,6 +1640,44 @@ mutation {
         console.error("Monday save failed:", err);
         alert("Failed to save install date to Monday");
     }
+}
+async function saveLaborers() {
+
+    if (!currentJob) return;
+
+    const laborers =
+        document.getElementById("detailLaborers").value;
+
+    const mutation = `
+    mutation {
+      change_column_value(
+        item_id: ${currentJob.id},
+        board_id: ${BOARD_ID},
+        column_id: "numeric_mm46tmad",
+        value: "${laborers}"
+      ) {
+        id
+      }
+    }`;
+
+    await fetch("https://api.monday.com/v2", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": apiToken
+        },
+        body: JSON.stringify({ query: mutation })
+    });
+
+    currentJob.laborers = laborers;
+
+    document
+        .getElementById("jobDetailModal")
+        .classList.remove("active");
+
+    showToast("Laborers Updated ✔");
+
+    loadJobs();
 }
 </script>
 <button onclick="openAddJobModal()" style="
