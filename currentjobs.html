@@ -403,12 +403,15 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
+    overflow: hidden; /* prevents page-level chaos */
+    font-family: Arial, sans-serif;
 }
 
 #screen {
-    min-height: 100vh;
+    height: 100dvh; /* better than 100vh (fixes mobile + browser UI shifts) */
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 #jobsContainer {
@@ -433,7 +436,7 @@ html, body {
 /* desktop = calendar view */
 @media (min-width: 769px) {
     #weekView { display: none; }
-    #calendarView { display: block; }
+    #calendarView { display: flex; }
 }
 #calendarView {
     height: calc(100vh - 120px);
@@ -441,6 +444,29 @@ html, body {
 }
 #screen {
     padding-bottom: 90px; /* room for floating buttons */
+}
+#weekView,
+#calendarView {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0; /* CRITICAL for flex scrolling */
+}
+#calendarWrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#calendarGrid {
+    flex: 1;
+    overflow: hidden;
+}
+#screen {
+    padding-bottom: 90px;
+}
+.floating-btn {
+    position: fixed;
+    z-index: 9999;
 }
 </style>
 </head>
@@ -1463,8 +1489,7 @@ const jobSpans = allJobs.map(job => {
  let html = `
 <div id="calendarWrapper" style="
     position: relative;
-    height: calc(100vh - 120px);
-height: calc(100dvh - 120px);
+    height: calc(100%);
     width: 100%;
     display:flex;
     flex-direction:column;
