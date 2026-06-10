@@ -290,9 +290,6 @@ body {
     0% { background-position: 100% 0; }
     100% { background-position: -100% 0; }
 }
-#screen {
-    opacity: 1;
-}
 
 .slide-left-out {
     transform: translateX(-30px);
@@ -406,16 +403,21 @@ html, body {
 }
 
 #screen {
-    min-height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
+    padding-bottom: 90px;
 }
 
 #jobsContainer {
     flex: 1;
     padding: 6px;
 }
-#weekView, #calendarView {
+#weekView,
+#calendarView {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
     width: 100%;
 }
 
@@ -435,12 +437,8 @@ html, body {
     #weekView { display: none; }
     #calendarView { display: block; }
 }
-#calendarView {
-    height: calc(100vh - 120px);
-    overflow-y: auto;
-}
-#screen {
-    padding-bottom: 90px; /* room for floating buttons */
+body {
+    overflow: hidden;
 }
 </style>
 </head>
