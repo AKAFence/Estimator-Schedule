@@ -698,7 +698,7 @@ async function loadJobs() {
     "date_mm3zmjgk",
     "date_mm45r6e3",
     "long_text_mm40xxhd",
-    "phone_mm46pnbc",
+    "text_mm46zh5y",
     "numeric_mm46tmad"
 ]) {
                         id
@@ -771,7 +771,7 @@ function parseJob(item) {
     if (col.id === "long_text_mm40xxhd")
         job.description = col.text || "";
 
-    if (col.id === "phone_mm46pnbc")
+    if (col.id === "text_mm46zh5y")
         job.phone = col.text || "";
 
     if (col.id === "numeric_mm46tmad")
