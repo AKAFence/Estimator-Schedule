@@ -1377,10 +1377,43 @@ function getEstimatorColor(estimator) {
     return map[(estimator || "unknown").toLowerCase()] || "#999999";
 }
 
+function buildJobOrderMap() {
+    const sorted = [...allJobs].sort((a, b) => {
+        const estCompare =
+            (a.estimator || "").localeCompare(b.estimator || "");
+        if (estCompare !== 0) return estCompare;
 
+        return (a.name || "").localeCompare(b.name || "");
+    });
+
+    const map = {};
+    sorted.forEach((job, index) => {
+        map[job.id] = index;
+    });
+
+    return map;
+}
 
 function renderCalendar() {
+    const orderMap = buildJobOrderMap();
     const container = document.getElementById("calendarView");
+
+const laneMap = {};
+let laneIndex = 0;
+
+// create a stable global order first
+const sortedJobs = [...allJobs].sort((a, b) => {
+    const estCompare =
+        (a.estimator || "").localeCompare(b.estimator || "");
+    if (estCompare !== 0) return estCompare;
+
+    return (a.name || "").localeCompare(b.name || "");
+});
+
+// assign each job a fixed row (lane)
+sortedJobs.forEach(job => {
+    laneMap[job.id] = laneIndex++;
+});
 
     const today = new Date();
 
@@ -1467,6 +1500,20 @@ const current = new Date(
 const dayJobs = jobSpans.filter(j =>
     current >= j.startDate && current <= j.endDate
 );
+
+dayJobs.sort((a, b) => {
+    const aId = a.job.id;
+    const bId = b.job.id;
+
+    // 1. estimator priority
+    const estCompare =
+        (a.job.estimator || "").localeCompare(b.job.estimator || "");
+    if (estCompare !== 0) return estCompare;
+
+    // 2. stable fallback using job ID (prevents shifting)
+    return aId.localeCompare(bId);
+});
+
 const isToday =
     date.getFullYear() === today.getFullYear() &&
     date.getMonth() === today.getMonth() &&
@@ -1679,45 +1726,107 @@ async function saveLaborers() {
 
     loadJobs();
 }
+let fabOpen = false;
+
+function toggleFabMenu() {
+    fabOpen = !fabOpen;
+
+    document.getElementById("fabJob").style.display = fabOpen ? "flex" : "none";
+    document.getElementById("fabOff").style.display = fabOpen ? "flex" : "none";
+}
 </script>
-<button onclick="openAddJobModal()" style="
+<div id="fabContainer" style="
     position: fixed;
     bottom: 20px;
     right: 20px;
+    z-index: 9999;
+">
 
-    width: 42px;
-    height: 42px;
+    <!-- OPTION 1: Add Job -->
+    <button id="fabJob" onclick="openAddJobModal()" style="
+    position: absolute;
+    bottom: 90px;
+    right: 0;
+
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     border: 1px solid #FFD400;
-
-    background: #000000;
+    background: #000;
     color: #FFD400;
-
-    font-size: 18px;
+    font-size: 10px;
     font-weight: 700;
 
-    box-shadow: 0 10px 20px rgba(0,0,0,0.25);
-    cursor: pointer;
-    
+    display: none;
+    align-items: center;
+    justify-content: center;
 ">
-+
-<button onclick="openOffDayModal()" style="
+    JOB
+</button>
+
+    <!-- OPTION 2: Add Off Day -->
+    <button id="fabOff" onclick="openOffDayModal()" style="
+    position: absolute;
+    bottom: 50px;
+    right: 0;
+
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    background: #ef4444;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+">
+    OFF
+</button>
+
+    <!-- MAIN + BUTTON -->
+    <button onclick="toggleFabMenu()" style="
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        border: 1px solid #FFD400;
+        background: #000;
+        color: #FFD400;
+        font-size: 20px;
+        font-weight: 700;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+        cursor: pointer;
+    ">
+        +
+    </button>
+
+</div>
+
+    <button onclick="window.location.href='jobtracker.html'" style="
     position: fixed;
     bottom: 20px;
-    right: 80px;
+    left: 20px;
 
     width: 42px;
     height: 42px;
+
     border-radius: 50%;
     border: 1px solid #ddd;
 
-    background: #ef4444;
+    background: #2f3a8f;
     color: white;
 
     font-size: 16px;
     font-weight: 700;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,.2);
+    cursor: pointer;
+    z-index: 9999;
 ">
-    OFF
+📋
+</button>
 </button>
 </button>
 <div id="toast" style="
