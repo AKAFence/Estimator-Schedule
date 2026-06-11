@@ -441,7 +441,7 @@ body {
     overflow: hidden;
 }
 #weekView {
-    padding-top: 12px;
+    padding-top: 8px;
     box-sizing: border-box;
 }
 </style>
@@ -558,26 +558,37 @@ body {
         <div style="margin-bottom:10px;">
             <strong>Laborers</strong>
 
-            <select id="detailLaborers" style="
-                width:100%;
-                padding:10px;
-                border-radius:8px;
-                border:1px solid #ddd;
-            ">
-                <option value="1">1 Laborer</option>
-                <option value="2">2 Laborers</option>
-                <option value="3">3 Laborers</option>
-                <option value="4">4 Laborers</option>
-                <option value="5">5 Laborers</option>
-            </select>
-        </div>
+  <select id="detailLaborers" style="
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ddd;
+">
+    <option value="1">1 Laborer</option>
+    <option value="2">2 Laborers</option>
+    <option value="3">3 Laborers</option>
+    <option value="4">4 Laborers</option>
+    <option value="5">5 Laborers</option>
+</select>
 
-        <button onclick="saveLaborers()">
-            Save
-        </button>
+<!-- ⭐ ADD THIS RIGHT HERE -->
+<div style="margin-top:12px;">
+    <div style="font-weight:600;margin-bottom:6px;">
+        Media Rating
+    </div>
 
+    <div id="ratingStars" style="
+        display:flex;
+        gap:6px;
+        font-size:26px;
+        cursor:pointer;
+    ">
     </div>
 </div>
+
+<button onclick="saveLaborers()">
+    Save
+</button>
 
 
 <!-- PUT OFF DAY MODAL RIGHT HERE -->
@@ -728,7 +739,8 @@ async function loadJobs() {
     "date_mm45r6e3",
     "long_text_mm40xxhd",
     "text_mm46zh5y",
-    "numeric_mm46tmad"
+    "numeric_mm46tmad",
+    "numeric_mm47xfw2"
 ]) {
                         id
                         text
@@ -760,58 +772,43 @@ function parseJob(item) {
     const name = item.name || "";
     const groupRaw = (item.group?.title || "").trim().toLowerCase();
 
-    let estimator = "";
+    const originalEstimator = groupRaw || "unknown";
 
-    // estimator assignment (BASED ON GROUPS IN MONDAY)
-    if (groupRaw === "tom") estimator = "tom";
-    else if (groupRaw === "brad") estimator = "brad";
-    else if (groupRaw === "matt") estimator = "matt";
-    else if (groupRaw.includes("repair")) estimator = "repair";
-    else if (groupRaw.includes("completed")) estimator = "completed";
-    else estimator = "unknown";
+    const estimator =
+        groupRaw === "tom" ? "tom" :
+        groupRaw === "brad" ? "brad" :
+        groupRaw === "matt" ? "matt" :
+        groupRaw.includes("repair") ? "repair" :
+        groupRaw.includes("completed") ? originalEstimator :
+        "unknown";
 
     const job = {
-    id: item.id,
-    name,
-    estimator,
-    originalEstimator: estimator,
-    group: groupRaw,
-    isRepair: groupRaw.includes("repair"),
+        id: item.id,
+        name,
+        estimator,
+        originalEstimator,
 
-    location: "",
-    phone: "",
-    laborers: 1,
+        location: "",
+        phone: "",
+        laborers: 1,
+        rating: 0,
 
-    date: "",
-    description: ""
-};
+        date: "",
+        endDate: "",
+        description: ""
+    };
 
-   item.column_values.forEach(col => {
+    item.column_values.forEach(col => {
+        if (col.id === "text_mm3zf47z") job.location = col.text || "";
+        if (col.id === "date_mm3zmjgk") job.date = col.text || "";
+        if (col.id === "date_mm45r6e3") job.endDate = col.text || job.date;
+        if (col.id === "long_text_mm40xxhd") job.description = col.text || "";
+        if (col.id === "text_mm46zh5y") job.phone = col.text || "";
+        if (col.id === "numeric_mm46tmad") job.laborers = col.text || "1";
+        if (col.id === "numeric_mm47xfw2") job.rating = col.text || "0";
+    });
 
-    if (col.id === "text_mm3zf47z")
-        job.location = col.text || "";
-
-    if (col.id === "date_mm3zmjgk")
-        job.date = col.text || "";
-
-    if (col.id === "date_mm45r6e3")
-        job.endDate = col.text || "";
-
-    if (col.id === "long_text_mm40xxhd")
-        job.description = col.text || "";
-
-    if (col.id === "text_mm46zh5y")
-        job.phone = col.text || "";
-
-    if (col.id === "numeric_mm46tmad")
-        job.laborers = col.text || "1";
-});
-
-// normalize missing values
-if (!job.date) job.date = null;
-if (!job.endDate) job.endDate = job.date;
-
-return job;
+    return job;
 }
 
 // ================= WEEK FILTER =================
@@ -866,7 +863,24 @@ function renderJobs() {
 
         card.innerHTML = `
   <div class="job-name" onclick="openJobDetail('${job.id}')">
-    ${job.name}
+
+    <span>
+        ${job.name}
+        ${job.isRepair ? '<span class="repair-badge">🔨</span>' : ''}
+    </span>
+
+    ${job.rating > 0 ? `
+        <span style="
+            font-size:12px;
+            font-weight:700;
+            color:#f59e0b;
+            white-space:nowrap;
+        ">
+            ${job.rating}★
+        </span>
+    ` : ""}
+
+</div>
 
     ${job.isRepair ? '<span class="repair-badge">🔨</span>' : ''}
 </div>
@@ -905,6 +919,62 @@ ${job.description ? `
     });
 }
 
+function renderRatingStars(rating) {
+
+    const container = document.getElementById("ratingStars");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    for (let i = 1; i <= 5; i++) {
+
+        const star = document.createElement("span");
+
+        star.innerHTML = i <= rating ? "★" : "☆";
+
+        star.style.color = i <= rating ? "#f59e0b" : "#d1d5db";
+        star.style.cursor = "pointer";
+        star.style.fontSize = "26px";
+
+        star.onclick = async () => {
+    currentJob.rating = i;
+
+    renderRatingStars(i);
+
+    // 🔥 instantly save to Monday
+    const mutation = `
+    mutation {
+      change_column_value(
+        item_id: ${currentJob.id},
+        board_id: ${BOARD_ID},
+        column_id: "numeric_mm47xfw2",
+        value: "${i}"
+      ) {
+        id
+      }
+    }`;
+
+    try {
+        await fetch("https://api.monday.com/v2", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": apiToken
+            },
+            body: JSON.stringify({ query: mutation })
+        });
+
+        showToast(`Rating set to ${i}★`);
+
+    } catch (err) {
+        console.error("Rating save failed:", err);
+        showToast("Failed to save rating");
+    }
+};
+
+        container.appendChild(star);
+    }
+}
 // ================= WEEK LABEL =================
 function updateWeekLabel() {
     const now = new Date();
@@ -1138,6 +1208,8 @@ function openJobDetail(jobId) {
     document.getElementById("detailLaborers").value =
         currentJob.laborers || 1;
 
+    renderRatingStars(currentJob.rating || 0);
+        
     document
         .getElementById("jobDetailModal")
         .classList.add("active");
@@ -1394,16 +1466,15 @@ function refreshUI() {
     }
 }
 function getEstimatorColor(estimator) {
-    const map = {
-        tom: "#ff3b30",
-        brad: "#000000",
-        matt: "#0073ea",
-        repair: "#f97316",
-        completed: "#16a34a",
-        unknown: "#999999"
-    };
+    const key = String(estimator || "").toLowerCase().trim();
 
-    return map[(estimator || "unknown").toLowerCase()] || "#999999";
+    if (key.includes("repair")) return "#f97316";
+    if (key.includes("completed")) return "#16a34a";
+    if (key === "tom") return "#ff3b30";
+    if (key === "brad") return "#000000";
+    if (key === "matt") return "#0073ea";
+
+    return "#999999";
 }
 
 function buildJobOrderMap() {
@@ -1609,8 +1680,8 @@ const dayOffs = offDays.filter(o => {
 </div>
        ${dayJobs.map(j => {
     const job = j.job;
-
-    const color = getEstimatorColor(job.originalEstimator || job.estimator);
+console.log("JOB:", job.name, job.originalEstimator, job.estimator);
+    const color = getEstimatorColor(job.estimator);
 
  return `
     <div
@@ -1628,7 +1699,23 @@ const dayOffs = offDays.filter(o => {
             cursor:pointer;
         "
     >
+       <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+    <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
         ${job.name} (${job.laborers || 1}👷)
+    </span>
+
+    <span style="
+        font-size:11px;
+        font-weight:700;
+        color:#f59e0b;
+        cursor:pointer;
+        white-space:nowrap;
+    "
+    onclick="event.stopPropagation(); setRating('${job.id}', 1)">
+        ${job.rating ? job.rating + "★" : ""}
+    </span>
+</div>
+        
     </div>
 `;
 }).join("")}
@@ -1725,7 +1812,12 @@ async function saveLaborers() {
     const laborers =
         document.getElementById("detailLaborers").value;
 
-    const mutation = `
+    currentJob.laborers = laborers;
+
+    // -------------------------
+    // 1. Save laborers
+    // -------------------------
+    const laborerMutation = `
     mutation {
       change_column_value(
         item_id: ${currentJob.id},
@@ -1743,16 +1835,41 @@ async function saveLaborers() {
             "Content-Type": "application/json",
             "Authorization": apiToken
         },
-        body: JSON.stringify({ query: mutation })
+        body: JSON.stringify({ query: laborerMutation })
     });
 
-    currentJob.laborers = laborers;
+    // -------------------------
+    // 2. Save rating (FIXED HERE)
+    // -------------------------
+    const ratingMutation = `
+    mutation {
+      change_column_value(
+        item_id: ${currentJob.id},
+        board_id: ${BOARD_ID},
+        column_id: "numeric_mm47xfw2",
+        value: "${currentJob.rating || 0}"
+      ) {
+        id
+      }
+    }`;
 
+    await fetch("https://api.monday.com/v2", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": apiToken
+        },
+        body: JSON.stringify({ query: ratingMutation })
+    });
+
+    // -------------------------
+    // close modal
+    // -------------------------
     document
         .getElementById("jobDetailModal")
         .classList.remove("active");
 
-    showToast("Laborers Updated ✔");
+    showToast("Job Updated ✔");
 
     loadJobs();
 }
@@ -1764,6 +1881,45 @@ function toggleFabMenu() {
     document.getElementById("fabJob").style.display = fabOpen ? "flex" : "none";
     document.getElementById("fabOff").style.display = fabOpen ? "flex" : "none";
 }
+async function setRating(jobId, value) {
+
+    const job = allJobs.find(j => j.id == jobId);
+    if (!job) return;
+
+    job.rating = value;
+
+    const mutation = `
+    mutation {
+      change_column_value(
+        item_id: ${jobId},
+        board_id: ${BOARD_ID},
+        column_id: "numeric_mm47xfw2",
+        value: "${value}"
+      ) {
+        id
+      }
+    }`;
+
+    try {
+        await fetch("https://api.monday.com/v2", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": apiToken
+            },
+            body: JSON.stringify({ query: mutation })
+        });
+
+        showToast(`Rating set to ${value}★`);
+
+        renderCalendar(); // refresh UI so it updates visually
+
+    } catch (err) {
+        console.error(err);
+        showToast("Rating update failed");
+    }
+}
+
 </script>
 <div id="fabContainer" style="
     position: fixed;
