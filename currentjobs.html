@@ -440,6 +440,10 @@ html, body {
 body {
     overflow: hidden;
 }
+#weekView {
+    padding-top: 16px;
+    box-sizing: border-box;
+}
 </style>
 </head>
 
@@ -639,7 +643,25 @@ function showLoading() {
         `;
     }
 }
+function setInitialView() {
+    if (window.innerWidth >= 769) {
+        viewMode = "calendar";
+    } else {
+        viewMode = "week";
+    }
+}
 
+setInitialView();
+
+window.addEventListener("resize", () => {
+    if (window.innerWidth >= 769) {
+        viewMode = "calendar";
+    } else {
+        viewMode = "week";
+    }
+
+    refreshUI();
+});
 async function loadOffDays() {
     const query = `
     query {
