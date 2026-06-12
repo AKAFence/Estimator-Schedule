@@ -34,22 +34,89 @@
             align-items: center;
             margin-bottom: 8px;
             background: #ffffff;
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 8px;
             box-shadow: 0px 4px 6px -4px rgba(0,0,0,0.1);
+            gap: 16px;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+            min-width: 0;
         }
 
         .header h1 {
             font-family: 'Poppins', sans-serif;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             color: #323338;
+            margin: 0;
+            white-space: nowrap;
+            line-height: 1.1;
         }
 
         .header-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            min-width: 0;
+        }
+
+        .search-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f2f2f7;
+            border: 1px solid rgba(60,60,67,0.18);
+            border-radius: 20px;
+            padding: 10px 12px;
+            width: 100%;
+            max-width: 860px;
+            min-width: 320px;
+        }
+
+        .search-pill input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 13px;
+            color: #1c1c1e;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .search-pill input::placeholder {
+            color: #8e8e93;
+        }
+
+        .search-pill-button {
+            border: none;
+            background: #007aff;
+            color: white;
+            border-radius: 16px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            min-width: 74px;
+            box-shadow: 0 8px 20px rgba(0,122,255,0.18);
+        }
+
+        .search-pill-button:hover {
+            background: #006ce6;
+        }
+
+        .search-pill-button:active {
+            transform: scale(0.98);
+        }
+
+        .header-meta {
+            display: none;
+            font-size: 10px;
+            color: #6b7280;
+            line-height: 1.4;
         }
 
      .legend {
@@ -397,34 +464,33 @@
             padding: 20px;
             color: #676879;
         }
+
+        .shimmer-card {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shimmer {
+            height: 12px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 37%, #f3f4f6 63%);
+            background-size: 400% 100%;
+            animation: shimmerMove 1.2s ease infinite;
+            margin-bottom: 8px;
+        }
+
+        @keyframes shimmerMove {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+
         .column.collapsed .job-card {
-    display: none;
-}
-        .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-#searchInput {
-    padding: 6px 10px;
-    border: 1px solid #d0d4e4;
-    border-radius: 6px;
-    font-size: 12px;
-    width: 200px;
-    outline: none;
-}
-
-#searchInput:focus {
-    border-color: #0073ea;
-    box-shadow: 0 0 0 2px rgba(0,115,234,0.2);
-}
+            display: none;
+        }
 
 @media (max-width: 768px) {
 
@@ -441,14 +507,27 @@
     }
 
     .header {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
         gap: 8px;
     }
 
+    .header-left {
+        flex: 0 0 auto;
+        min-width: 0;
+    }
+
     .header-right {
-        flex-wrap: wrap;
-        gap: 6px;
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    .search-pill {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
     }
 
     #searchInput {
@@ -550,13 +629,17 @@
     </style>
 </head>
 <body>
-    <div class="header-left">
-    <h1>Job Tracker</h1>
+    <div class="header">
+        <div class="header-left">
+            <h1>Job Tracker</h1>
+            <div id="lastUpdated" style="display:none;"></div>
+        </div>
 
         <div class="header-right">
-            
-            <div class="last-updated" id="lastUpdated">Updated: 11:01 AM</div>
-        
+            <div class="search-pill">
+                <input id="searchInput" placeholder="Search job or location…" onkeydown="if(event.key==='Enter') searchJobTracker();" />
+                <button class="search-pill-button" onclick="searchJobTracker()">Search</button>
+            </div>
         </div>
     </div>
 
@@ -730,6 +813,7 @@
         let completedCollapsed = false;
         let currentJob = null;
         let navigationAddress = '';
+        let isLoading = false;
 // Column collapse state (safe version)
 const columnState = {
     tom: false,
@@ -756,6 +840,9 @@ if (savedColumnState) {
                 showError('API token not set. Please configure in settings.');
                 return;
             }
+
+            showLoading();
+            isLoading = true;
 
             try {
                 const query = `
@@ -834,7 +921,28 @@ if (savedColumnState) {
             } catch (error) {
                 console.error('Error loading jobs:', error);
                 showError('Failed to load jobs: ' + error.message);
+            } finally {
+                isLoading = false;
             }
+        }
+
+        function showLoading() {
+            ['tom', 'brad', 'matt'].forEach(estimator => {
+                const container = document.getElementById(`${estimator}Jobs`);
+                if (!container) return;
+                container.innerHTML = '';
+
+                for (let i = 0; i < 4; i++) {
+                    const shimmerCard = document.createElement('div');
+                    shimmerCard.className = 'shimmer-card';
+                    shimmerCard.innerHTML = `
+                        <div class="shimmer" style="width:60%"></div>
+                        <div class="shimmer" style="width:80%"></div>
+                        <div class="shimmer" style="width:40%"></div>
+                    `;
+                    container.appendChild(shimmerCard);
+                }
+            });
         }
 
         function parseJob(item) {
@@ -1011,6 +1119,27 @@ item.column_values.forEach(col => {
         }
 
         // Modal Functions
+        function searchJobTracker() {
+            const term = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!term) {
+                alert('Please enter a job name or location to search.');
+                return;
+            }
+
+            const match = allJobs.find(job => {
+                const name = (job.name || '').toLowerCase();
+                const location = (job.location || '').toLowerCase();
+                return name.includes(term) || location.includes(term);
+            });
+
+            if (!match) {
+                alert(`No job found for "${term}"`);
+                return;
+            }
+
+            openJobModal(match);
+        }
+
         function openJobModal(job) {
             currentJob = job;
             document.getElementById('modalJobName').textContent = job.name;
@@ -1218,9 +1347,11 @@ function openWaze() {
 
         // Utility Functions
         function updateLastUpdated() {
+            const el = document.getElementById('lastUpdated');
+            if (!el) return;
             const now = new Date();
             const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('lastUpdated').textContent = `Updated: ${timeString}`;
+            el.textContent = `Updated: ${timeString}`;
         }
 
         function showError(message) {
