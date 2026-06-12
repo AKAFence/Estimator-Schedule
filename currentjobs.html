@@ -8,6 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
 
 <style>
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 body {
     font-family: 'Figtree', sans-serif;
     background: #f6f7fb;
@@ -15,6 +18,7 @@ body {
     padding: 10px;
     font-size: 12px;
     color: #323338;
+    overflow-x: hidden;
 }
 body {
     -webkit-overflow-scrolling: touch;
@@ -87,164 +91,129 @@ body {
     text-decoration: none;
 }
 
+.search-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f2f2f7;
+    border: 1px solid rgba(60,60,67,0.18);
+    border-radius: 20px;
+    padding: 10px 12px;
+    width: 100%;
+    max-width: 720px;
+    min-width: 0;
+}
+
+.search-pill input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 13px;
+    color: #1c1c1e;
+    width: 100%;
+    min-width: 0;
+}
+
+.search-pill input::placeholder {
+    color: #8e8e93;
+}
+
+.search-pill-button {
+    border: none;
+    background: #007aff;
+    color: white;
+    border-radius: 16px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 74px;
+    box-shadow: 0 8px 20px rgba(0,122,255,0.18);
+}
+
+.search-pill-button:hover {
+    background: #006ce6;
+}
+
+.search-pill-button:active {
+    transform: scale(0.98);
+}
+
+.header-top {
+    display: flex;
+    align-items: center;
+    position: relative;
+    gap: 12px;
+    padding-right: 10px;
+}
+
+.header-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.header-search {
+    margin-left: auto;
+    flex: 0 1 auto;
+    width: min(720px, calc(100% - 220px));
+    max-width: 720px;
+    min-width: 0;
+}
+
+@media (max-width: 768px) {
+    .header-top {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        column-gap: 12px;
+        justify-content: space-between;
+    }
+
+    .header-title {
+        position: static;
+        transform: none;
+        justify-self: start;
+        margin-bottom: 0;
+        width: auto;
+    }
+
+    .header-search {
+        justify-self: stretch;
+        margin-left: 0;
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+    }
+
+    .search-pill {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+}
+
 /* NAV MODAL */
 .nav-modal {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.25);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    z-index: 9999;
-
-    justify-content: center;
-    align-items: center; /* center everything by default */
+    background: rgba(0,0,0,0.35);
+    z-index: 1100;
 }
 
 .nav-modal.active {
     display: flex;
     justify-content: center;
-    align-items: flex-end; /* keep bottom sheet behavior */
+    align-items: flex-end;
 }
 
-.nav-sheet {
-    width: min(92vw, 420px);
-    max-height: 85vh;
-
-    background: rgba(255,255,255,0.96);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-
-    border-radius: 18px;
-    padding: 14px;
-
-    box-shadow: 0 12px 30px rgba(0,0,0,0.18);
-
-    overflow-y: auto;
-
-    transform: scale(0.98);
-    animation: modalPop 0.18s ease forwards;
-}
-
-.nav-sheet button {
-    width: 100%;
-    background: rgba(240,240,245,0.9);
-    border: none;
-    padding: 14px;
-    border-radius: 12px;
-    margin-bottom: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-
-    transition: all 0.15s ease;
-}
-
-.nav-sheet button:active {
-    transform: scale(0.98);
-    background: rgba(220,220,230,0.9);
-}
-
-@keyframes modalPop {
-    from {
-        transform: scale(0.92);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-@keyframes popIn {
-    from {
-        transform: scale(0.92);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-#weekLabel {
-    font-size: 12px;
-    font-weight: 500;
-    color: #8a8f99;
-}
-.header button {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    border: none;
-
-    background: #ffffff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-
-    font-size: 14px;
-    font-weight: 600;
-    color: #323338;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    cursor: pointer;
-
-    transition: all 0.15s ease;
-}
-.header button:active {
-    transform: scale(0.92);
-    background: #f2f2f7;
-}
-.header button {
-    margin: 0 4px;
-}
-.week-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-.week-pill {
-    flex: 1;
-    text-align: center;
-    background: #eef2ff;
-    color: #2f3a8f;
-    padding: 6px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.nav-arrow {
-    background: white;
-    border: 1px solid #ddd;
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    font-size: 18px;
-    font-weight: 600;
-    color: #333;
-    cursor: pointer;
-}
-.slide-left {
-    animation: slideLeft 0.25s ease;
-}
-
-.slide-right {
-    animation: slideRight 0.25s ease;
-}
-
-@keyframes slideLeft {
-    from { transform: translateX(25px); opacity: 0.4; }
-    to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes slideRight {
-    from { transform: translateX(-25px); opacity: 0.4; }
-    to { transform: translateX(0); opacity: 1; }
-}
 .nav-arrow {
     background: white;
     border: 1px solid #e5e7eb;
@@ -403,7 +372,7 @@ html, body {
 }
 
 #screen {
-    height: 100dvh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     padding-bottom: 90px;
@@ -419,6 +388,7 @@ html, body {
     overflow-y: auto;
     min-height: 0;
     width: 100%;
+    box-sizing: border-box;
 }
 
 /* default state */
@@ -428,21 +398,17 @@ html, body {
 
 /* mobile = week view */
 @media (max-width: 768px) {
-    #weekView { display: block; }
+    #weekView { display: block; padding-top: 5px; }
     #calendarView { display: none; }
 }
 
 /* desktop = calendar view */
 @media (min-width: 769px) {
     #weekView { display: none; }
-    #calendarView { display: block; }
+    #calendarView { display: block; padding-top: 25px; }
 }
 body {
     overflow: hidden;
-}
-#weekView {
-    padding-top: 8px;
-    box-sizing: border-box;
 }
 </style>
 </head>
@@ -452,32 +418,29 @@ body {
 <div id="screen">
 
     <div class="header">
-        <div style="
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    font-size:18px;
-    font-weight:700;
-    margin-bottom:8px;
-">
-    Current Jobs
+        <div class="header-top">
+            <div class="header-title">
+                Current Jobs
+                <button onclick="toggleViewMode()" style="
+                    width:28px;
+                    height:28px;
+                    border-radius:8px;
+                    border:none;
+                    background:white;
+                    box-shadow:0 2px 6px rgba(0,0,0,0.08);
+                    font-size:14px;
+                    cursor:pointer;
+                ">
+                    📅
+                </button>
+            </div>
+            <div class="search-pill header-search">
+                <input id="jobSearchInput" class="job-search" placeholder="Search job or name…" onkeydown="if(event.key==='Enter') searchJob();" />
+                <button class="search-pill-button" onclick="searchJob()">Search</button>
+            </div>
+        </div>
 
-<button onclick="toggleViewMode()" style="
-    width:28px;
-    height:28px;
-    border-radius:8px;
-    border:none;
-    background:white;
-    box-shadow:0 2px 6px rgba(0,0,0,0.08);
-    font-size:14px;
-    cursor:pointer;
-">
-    📅
-</button>
-</div>
-
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;">
             <button class="nav-arrow" onclick="changeWeek(-1)">◀</button>
 
             <div id="weekLabel"></div>
@@ -741,7 +704,8 @@ async function loadJobs() {
     "long_text_mm40xxhd",
     "text_mm46zh5y",
     "numeric_mm46tmad",
-    "numeric_mm47xfw2"
+    "numeric_mm47xfw2",
+    "text_mm483ea4"
 ]) {
                         id
                         text
@@ -773,15 +737,33 @@ function parseJob(item) {
     const name = item.name || "";
     const groupRaw = (item.group?.title || "").trim().toLowerCase();
 
-    const originalEstimator = groupRaw || "unknown";
+    // prefer explicit estimator column from Monday if present
+    const estimatorCol = (item.column_values.find(c => c.id === "text_mm483ea4")?.text || "").trim().toLowerCase();
 
-    const estimator =
-        groupRaw === "tom" ? "tom" :
-        groupRaw === "brad" ? "brad" :
-        groupRaw === "matt" ? "matt" :
-        groupRaw.includes("repair") ? "repair" :
-        groupRaw.includes("completed") ? originalEstimator :
-        "unknown";
+    const originalEstimator = estimatorCol || groupRaw || "unknown";
+
+    let estimator;
+    // repair group should always be recognized first
+    if (groupRaw.includes("repair")) {
+        estimator = "repair";
+    } else if (estimatorCol.includes("tom")) {
+        estimator = "tom";
+    } else if (estimatorCol.includes("brad")) {
+        estimator = "brad";
+    } else if (estimatorCol.includes("matt")) {
+        estimator = "matt";
+    } else if (groupRaw.includes("tom")) {
+        estimator = "tom";
+    } else if (groupRaw.includes("brad")) {
+        estimator = "brad";
+    } else if (groupRaw.includes("matt")) {
+        estimator = "matt";
+    } else if (groupRaw.includes("completed")) {
+        // fallback to completed when no estimator info available
+        estimator = "completed";
+    } else {
+        estimator = "unknown";
+    }
 
     const job = {
         id: item.id,
@@ -808,6 +790,9 @@ function parseJob(item) {
         if (col.id === "numeric_mm46tmad") job.laborers = col.text || "1";
         if (col.id === "numeric_mm47xfw2") job.rating = col.text || "0";
     });
+
+    // flag repairs for UI (keeps orange even if other fields present)
+    job.isRepair = estimator === "repair" || originalEstimator.includes("repair");
 
     return job;
 }
@@ -1184,6 +1169,8 @@ function formatDate(dateString) {
 }
 
 // ================== Job Details ================
+let currentJob = null;
+
 function openJobDetail(jobId) {
 
     currentJob = allJobs.find(j => j.id == jobId);
@@ -1445,6 +1432,58 @@ async function submitOffDay() {
     showToast("Off Day Added ✔");
 }
 
+function searchJob() {
+    const term = document
+        .getElementById("jobSearchInput")
+        .value
+        .trim()
+        .toLowerCase();
+
+    if (!term) {
+        showToast("Enter a job name or location to search");
+        return;
+    }
+
+    const match = allJobs.find(job => {
+        const name = (job.name || "").toLowerCase();
+        const location = (job.location || "").toLowerCase();
+        return name.includes(term) || location.includes(term);
+    });
+
+    if (!match) {
+        showToast(`No job found for "${term}"`);
+        return;
+    }
+
+    if (viewMode === "week" && match.date) {
+        const now = new Date();
+        const day = now.getDay();
+        const diff = (day === 0 ? -6 : 1) - day;
+        const start = new Date(now);
+        start.setDate(start.getDate() + diff);
+        start.setHours(0, 0, 0, 0);
+
+        const jobDate = new Date(match.date);
+        const offset = Math.round((jobDate - start) / (7 * 24 * 60 * 60 * 1000));
+        weekOffset = offset;
+    }
+
+    if (viewMode === "calendar" && match.date) {
+        const date = new Date(match.date);
+        const currentMonth = new Date();
+        monthOffset = (date.getFullYear() - currentMonth.getFullYear()) * 12 + (date.getMonth() - currentMonth.getMonth());
+    }
+
+    refreshUI();
+
+    const viewEl = document.getElementById(viewMode === "week" ? "weekView" : "calendarView");
+    if (viewEl) {
+        viewEl.scrollTop = 0;
+    }
+
+    setTimeout(() => openJobDetail(match.id), 220);
+}
+
 function showToast(message) {
     const toast = document.getElementById("toast");
     toast.innerText = message;
@@ -1465,15 +1504,20 @@ function refreshUI() {
     } else {
         renderCalendar();
     }
+
+    const viewEl = document.getElementById(viewMode === "week" ? "weekView" : "calendarView");
+    if (viewEl) {
+        viewEl.scrollTop = 0;
+    }
 }
 function getEstimatorColor(estimator) {
     const key = String(estimator || "").toLowerCase().trim();
 
+    if (key.includes("tom")) return "#ff3b30";
+    if (key.includes("brad")) return "#000000";
+    if (key.includes("matt")) return "#0073ea";
     if (key.includes("repair")) return "#f97316";
     if (key.includes("completed")) return "#16a34a";
-    if (key === "tom") return "#ff3b30";
-    if (key === "brad") return "#000000";
-    if (key === "matt") return "#0073ea";
 
     return "#999999";
 }
