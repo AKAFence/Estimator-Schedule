@@ -214,6 +214,10 @@ body {
     align-items: center;
 }
 
+#navModal.nav-modal.active {
+    align-items: flex-end;
+}
+
 .nav-sheet {
     width: 92%;
     max-width: 520px;
@@ -228,8 +232,49 @@ body {
     overflow-y: auto;
 }
 
-.nav-modal.active .nav-sheet {
-    transform: translateY(0);
+#navModal .nav-sheet {
+    margin: 0 auto 10px auto;
+    transform: translateY(100%);
+    animation: slideUp 0.25s ease forwards;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+#jobDetailModal.nav-modal.active,
+#addJobModal.nav-modal.active,
+#offDayModal.nav-modal.active {
+    justify-content: center;
+    align-items: center;
+}
+
+.nav-title {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: #1c1c1e;
+}
+
+.nav-btn {
+    width: 100%;
+    background: #f2f2f7;
+    border: none;
+    padding: 14px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #1c1c1e;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: transform 0.12s ease, background 0.2s ease;
+}
+
+.nav-btn:active {
+    transform: scale(0.98);
+    background: #e5e5ea;
 }
 
 body.modal-open #fabContainer,
@@ -318,18 +363,20 @@ body {
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
 }
-#addJobModal .nav-sheet {
+#addJobModal .nav-sheet,
+#offDayModal .nav-sheet {
     width: 92%;
     max-width: 420px;
     margin: auto;
     border-radius: 16px;
 }
+#addJobModal .nav-sheet {
+    background: white;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    animation: popIn 0.18s ease;
+}
 #offDayModal {
     align-items: center !important;
-}
-#offDayModal .nav-sheet {
-    margin: auto;
-    max-width: 420px;
 }
 #addJobModal input,
 #addJobModal textarea,
@@ -337,32 +384,6 @@ body {
 #offDayModal textarea {
     width: 100%;
     box-sizing: border-box;
-}
-#addJobModal input,
-#addJobModal textarea {
-    width: 100%;
-    box-sizing: border-box;
-}
-#addJobModal .nav-sheet {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-}
-@keyframes popIn {
-    from {
-        transform: scale(0.92);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-#navModal .nav-sheet {
-    animation: slideUp 0.2s ease;
-}
-#addJobModal .nav-sheet {
-    animation: popIn 0.18s ease;
 }
 @keyframes popIn {
     from {
@@ -374,19 +395,18 @@ body {
         opacity: 1;
     }
 }
-#addJobModal.nav-modal.active {
+#addJobModal.nav-modal.active,
+#offDayModal.nav-modal.active,
+#jobDetailModal.nav-modal.active {
     justify-content: center;
     align-items: center;
 }
-#offDayModal .nav-sheet {
-    width: 92%;
-    max-width: 420px;
-    margin: auto;
-    border-radius: 16px;
+#navModal {
+    z-index: 1110;
 }
 #navModal .nav-sheet {
-    margin: 0 auto 20px auto;
-    animation: slideUp 0.2s ease;
+    margin: 0 auto 10px auto;
+    animation: slideUp 0.2s ease forwards;
 }
 html, body {
     margin: 0;
@@ -487,13 +507,13 @@ body {
 <!-- NAV MODAL (OUTSIDE SCREEN) -->
 <div class="nav-modal" id="navModal">
     <div class="nav-sheet">
-        <div style="font-weight:700;text-align:center;margin-bottom:10px;">
+        <div class="nav-title">
             Navigate With
         </div>
 
-        <button onclick="openGoogleMaps()">Google Maps</button>
-        <button onclick="openAppleMaps()">Apple Maps</button>
-        <button onclick="openWaze()">Waze</button>
+        <button class="nav-btn" onclick="openGoogleMaps()">Google Maps</button>
+        <button class="nav-btn" onclick="openAppleMaps()">Apple Maps</button>
+        <button class="nav-btn" onclick="openWaze()">Waze</button>
     </div>
 </div>
 <div id="addJobModal" class="nav-modal">
@@ -535,7 +555,7 @@ body {
 
         <div style="margin-bottom:10px;">
             <strong>Address</strong>
-            <div id="detailAddress"></div>
+            <div id="detailAddress" style="color:#0073ea;cursor:pointer;" onclick="openNavigation(currentJob.location)"></div>
         </div>
 
         <div style="margin-bottom:10px;">
@@ -1217,7 +1237,14 @@ function openJobDetail(jobId) {
         currentJob.name || "";
 
     document.getElementById("detailAddress").innerText =
-        currentJob.location || "";
+        currentJob.location || "No location";
+
+    if (currentJob.location) {
+        document.getElementById("detailAddress").style.textDecoration = "underline";
+    } else {
+        document.getElementById("detailAddress").style.textDecoration = "none";
+        document.getElementById("detailAddress").style.cursor = "default";
+    }
 
     document.getElementById("detailPhone").innerHTML =
     currentJob.phone
