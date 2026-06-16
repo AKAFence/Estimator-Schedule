@@ -626,6 +626,129 @@
     transform: scale(0.98);
     background: #e5e5ea;
 }
+
+.safari-bottom-bar {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: auto;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    z-index: 1000001;
+    pointer-events: auto;
+}
+
+.safari-handle {
+    pointer-events: auto;
+    width: 58px;
+    height: 32px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(60, 60, 67, 0.22);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.safari-handle-dots {
+    position: relative;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+}
+
+.safari-handle-dots::before,
+.safari-handle-dots::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+    top: 0;
+}
+
+.safari-handle-dots::before {
+    left: -12px;
+}
+
+.safari-handle-dots::after {
+    right: -12px;
+}
+
+.safari-menu-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.24);
+    z-index: 300100;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0 14px 14px;
+}
+
+.safari-menu-overlay.active {
+    display: flex;
+}
+
+.safari-menu-card {
+    width: min(100%, 420px);
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 24px;
+    padding: 14px;
+    box-shadow: 0 28px 60px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.safari-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid rgba(60, 60, 67, 0.10);
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: transform 0.16s ease, background 0.16s ease;
+}
+
+.safari-menu-item:last-child {
+    margin-bottom: 0;
+}
+
+.safari-menu-item:hover {
+    background: #f2f2f7;
+    transform: translateY(-1px);
+}
+
+.safari-menu-icon {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    border-radius: 12px;
+    background: #f2f2f7;
+}
+
+.safari-menu-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1c1c1e;
+}
+
+body.menu-open {
+    overflow: hidden;
+}
     </style>
 </head>
 <body>
@@ -1493,27 +1616,57 @@ function saveEndDate(jobId, value) {
 }
 
     </script>
-<button onclick="window.location.href='currentjobs.html'" style="
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
+<div class="safari-bottom-bar">
+    <button class="safari-handle" onclick="toggleSafariMenu()" aria-label="Open menu">
+        <span class="safari-handle-dots"></span>
+    </button>
+</div>
 
-    width: 42px;
-    height: 42px;
+<div id="safariMenuOverlay" class="safari-menu-overlay" onclick="handleSafariOverlayClick(event)">
+    <div class="safari-menu-card" onclick="event.stopPropagation()">
+        <div class="safari-menu-item" onclick="goToJobTracker();">
+            <div class="safari-menu-icon">📋</div>
+            <div class="safari-menu-label">Job Tracker</div>
+        </div>
+        <div class="safari-menu-item" onclick="goToHome();">
+            <div class="safari-menu-icon">🏠</div>
+            <div class="safari-menu-label">Home</div>
+        </div>
+    </div>
+</div>
 
-    border-radius: 50%;
-    border: 1px solid #ddd;
+<script>
+let safariMenuOpen = false;
 
-    background: #16a34a;
-    color: white;
+function toggleSafariMenu() {
+    safariMenuOpen = !safariMenuOpen;
+    const overlay = document.getElementById("safariMenuOverlay");
+    overlay.classList.toggle("active", safariMenuOpen);
+    document.body.classList.toggle("menu-open", safariMenuOpen);
+}
 
-    font-size: 16px;
-    font-weight: 700;
+function closeSafariMenu() {
+    safariMenuOpen = false;
+    document.getElementById("safariMenuOverlay").classList.remove("active");
+    document.body.classList.remove("menu-open");
+}
 
-    box-shadow: 0 4px 12px rgba(0,0,0,.2);
-    cursor: pointer;
-    z-index: 9999;
-">
-📅
-</button>
+function handleSafariOverlayClick(event) {
+    if (event.target.id === "safariMenuOverlay") {
+        closeSafariMenu();
+    }
+}
+
+function goToHome() {
+    closeSafariMenu();
+    if (window.location.pathname.endsWith("index.html") || window.location.pathname.endsWith("/")) return;
+    window.location.href = "index.html";
+}
+
+function goToJobTracker() {
+    closeSafariMenu();
+    if (window.location.pathname.endsWith("jobtracker.html")) return;
+    window.location.href = "jobtracker.html";
+}
+</script>
 </body></html>
