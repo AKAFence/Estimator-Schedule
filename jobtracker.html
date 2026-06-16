@@ -1624,9 +1624,9 @@ function saveEndDate(jobId, value) {
 
 <div id="safariMenuOverlay" class="safari-menu-overlay" onclick="handleSafariOverlayClick(event)">
     <div class="safari-menu-card" onclick="event.stopPropagation()">
-        <div class="safari-menu-item" onclick="goToJobTracker();">
-            <div class="safari-menu-icon">📋</div>
-            <div class="safari-menu-label">Job Tracker</div>
+        <div class="safari-menu-item" onclick="goToCurrentJobs();">
+            <div class="safari-menu-icon">📅</div>
+            <div class="safari-menu-label">Current Jobs</div>
         </div>
         <div class="safari-menu-item" onclick="goToHome();">
             <div class="safari-menu-icon">🏠</div>
@@ -1661,6 +1661,12 @@ function goToHome() {
     closeSafariMenu();
     if (window.location.pathname.endsWith("index.html") || window.location.pathname.endsWith("/")) return;
     window.location.href = "index.html";
+}
+
+function goToCurrentJobs() {
+    closeSafariMenu();
+    if (window.location.pathname.endsWith("currentjobs.html")) return;
+    window.location.href = "currentjobs.html";
 }
 
 function goToJobTracker() {
