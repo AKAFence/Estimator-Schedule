@@ -468,7 +468,7 @@ body.menu-open {
     transform: translateX(0);
     opacity: 1;
 }
-.repair-badge {
+. {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1028,7 +1028,7 @@ function renderJobs() {
 
     <span>
         ${job.name}
-        ${job.isRepair ? '<span class="repair-badge">🔨</span>' : ''}
+        ${job.isRepair ? '<span class="">🔨</span>' : ''}
     </span>
 
     ${job.rating > 0 ? `
@@ -1044,7 +1044,6 @@ function renderJobs() {
 
 </div>
 
-    ${job.isRepair ? '<span class="repair-badge">🔨</span>' : ''}
 </div>
 
             <div class="job-details">
