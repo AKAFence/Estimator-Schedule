@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AKA Digital Cards</title>
+
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: #DEB83B;
+    overflow: hidden;
+}
+
+/* Top banner */
+.banner {
+    width: 100%;
+    display: block;
+}
+
+/* Swipe container */
+.cards-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    height: calc(100vh - 120px);
+    min-height: 500px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.cards-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Individual card page */
+.card-page {
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top:15px;
+}
+
+/* Main card */
+.estimator-card {
+    width: 90%;
+    max-width: 420px;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 12px 20px rgba(0,0,0,.25);
+}
+
+/* Header image */
+.card-header {
+    height: 160px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+/* Headshot */
+.headshot {
+    width: 155px;
+    height: 155px;
+    border-radius: 50%;
+    border: 3px solid white;
+    position: absolute;
+    bottom: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    object-fit: cover;
+    background: #eee;
+}
+
+/* Content area */
+.card-content {
+    padding-top: 75px;
+    padding-bottom: 30px;
+    text-align: center;
+}
+
+/* Name */
+.name {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+/* Title */
+.title {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 25px;
+}
+
+/* QR */
+.qr-code {
+    width: 180px;
+    height: 180px;
+    margin: auto;
+    display: block;
+}
+
+.qr-text {
+    margin-top: 12px;
+    font-size: 15px;
+    color: #555;
+    font-weight: 600;
+}
+
+/* Swipe dots */
+.dots {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.dot {
+    height: 10px;
+    width: 10px;
+    background: #444;
+    opacity: .3;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 4px;
+}
+
+.dot.active {
+    opacity: 1;
+}
+.safari-bottom-bar {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: auto;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    z-index: 1000001;
+    pointer-events: auto;
+}
+.safari-handle {
+    pointer-events: auto;
+    width: 58px;
+    height: 32px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(60, 60, 67, 0.22);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.safari-handle-dots {
+    position: relative;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+}
+.safari-handle-dots::before,
+.safari-handle-dots::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+    top: 0;
+}
+.safari-handle-dots::before {
+    left: -12px;
+}
+.safari-handle-dots::after {
+    right: -12px;
+}
+.safari-menu-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.24);
+    z-index: 300100;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0 14px 14px;
+}
+.safari-menu-overlay.active {
+    display: flex;
+}
+.safari-menu-card {
+    width: min(100%, 420px);
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 24px;
+    padding: 14px;
+    box-shadow: 0 28px 60px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+.safari-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid rgba(60, 60, 67, 0.10);
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: transform 0.16s ease, background 0.16s ease;
+}
+.safari-menu-item:last-child {
+    margin-bottom: 0;
+}
+.safari-menu-item:hover {
+    background: #f2f2f7;
+    transform: translateY(-1px);
+}
+.safari-menu-icon {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    border-radius: 12px;
+    background: #f2f2f7;
+}
+.safari-menu-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1c1c1e;
+}
+body.menu-open {
+    overflow: hidden;
+}
+@media (min-width: 768px) {
+    .banner {
+        height: 150px;
+        object-fit: cover;
+    }
+
+    .cards-container {
+        height: calc(100vh - 150px);
+    }
+}
+</style>
+</head>
+<body>
+
+<img src="banner.png" class="banner">
+
+<div class="cards-container" id="cardsContainer">
+
+    <!-- Tom -->
+    <div class="card-page">
+        <div class="estimator-card">
+
+            <div class="card-header"
+                 style="background-image:url('header.jpg');">
+
+                <img src="tom-headshot.jpeg"
+                     class="headshot">
+            </div>
+
+            <div class="card-content">
+
+                <div class="name">Tom Auchenbach</div>
+
+                <div class="title">
+                    President & Co-Owner
+                </div>
+
+                <img class="qr-code"
+                     src="Tom_Vcard.png">
+
+                <div class="qr-text">
+                    Scan to Save Contact
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Matt Koch -->
+    <div class="card-page">
+        <div class="estimator-card">
+
+            <div class="card-header"
+                 style="background-image:url('header.jpg');">
+
+                <img src="Koch-headshot.jpg"
+                     class="headshot">
+            </div>
+
+            <div class="card-content">
+
+                <div class="name">Matt Koch</div>
+
+                <div class="title">
+                    President & Co-Owner
+                </div>
+
+                <img class="qr-code"
+                     src="Koch_Vcard.png">
+
+                <div class="qr-text">
+                    Scan to Save Contact
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+<!-- Brad -->
+    <div class="card-page">
+        <div class="estimator-card">
+
+            <div class="card-header"
+                 style="background-image:url('header.jpg');">
+
+                <img src="brad-headshot.jpg"
+                     class="headshot">
+            </div>
+
+            <div class="card-content">
+
+                <div class="name">Brad Kreitz</div>
+
+                <div class="title">
+                    Foreman & Estimator
+                </div>
+
+                <img class="qr-code"
+                     src="Brad_Vcard.png">
+
+                <div class="qr-text">
+                    Scan to Save Contact
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+<!-- Heather -->
+    <div class="card-page">
+        <div class="estimator-card">
+
+            <div class="card-header"
+                 style="background-image:url('header.jpg');">
+
+                <img src="heather-headshot.jpg"
+                     class="headshot">
+            </div>
+
+            <div class="card-content">
+
+                <div class="name">Heather Auchenbach</div>
+
+                <div class="title">
+                    Operations Manager
+                </div>
+
+                <img class="qr-code"
+                     src="Heather_Vcard.png">
+
+                <div class="qr-text">
+                    Scan to Save Contact
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<div class="safari-bottom-bar">
+    <button class="safari-handle" onclick="toggleSafariMenu()" aria-label="Open menu">
+        <span class="safari-handle-dots"></span>
+    </button>
+</div>
+
+<div id="dbcardSafariMenuOverlay" class="safari-menu-overlay" onclick="handleSafariOverlayClick(event)">
+    <div class="safari-menu-card" onclick="event.stopPropagation()">
+        <div class="safari-menu-item" onclick="goToCurrentJobs();">
+            <div class="safari-menu-icon">📄</div>
+            <div class="safari-menu-label">Current Jobs</div>
+        </div>
+        <div class="safari-menu-item" onclick="goToJobTracker();">
+            <div class="safari-menu-icon">📋</div>
+            <div class="safari-menu-label">Job Tracker</div>
+        </div>
+        <div class="safari-menu-item" onclick="goToHome();">
+            <div class="safari-menu-icon">🏠</div>
+            <div class="safari-menu-label">Home</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let safariMenuOpen = false;
+
+    function toggleSafariMenu() {
+        safariMenuOpen = !safariMenuOpen;
+        const overlay = document.getElementById('dbcardSafariMenuOverlay');
+        overlay.classList.toggle('active', safariMenuOpen);
+        document.body.classList.toggle('menu-open', safariMenuOpen);
+    }
+
+    function closeSafariMenu() {
+        safariMenuOpen = false;
+        document.getElementById('dbcardSafariMenuOverlay').classList.remove('active');
+        document.body.classList.remove('menu-open');
+    }
+
+    function handleSafariOverlayClick(event) {
+        if (event.target.id === 'dbcardSafariMenuOverlay') {
+            closeSafariMenu();
+        }
+    }
+
+    function goToHome() {
+        closeSafariMenu();
+        if (window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/')) return;
+        window.location.href = 'index.html';
+    }
+
+    function goToJobTracker() {
+        closeSafariMenu();
+        if (window.location.pathname.endsWith('jobtracker.html')) return;
+        window.location.href = 'jobtracker.html';
+    }
+
+    function goToCurrentJobs() {
+        closeSafariMenu();
+        if (window.location.pathname.endsWith('currentjobs.html')) return;
+        window.location.href = 'currentjobs.html';
+    }
+</script>
+
+</body>
+</html>
