@@ -288,7 +288,7 @@ body.menu-open {
             <div class="card-header"
                  style="background-image:url('header.jpg');">
 
-                <button class="share-button" type="button" aria-label="Share Tom's contact info" title="Share contact" onclick="shareContact({firstName:'Tom', lastName:'Auchenbach', title:'President & Co-Owner', email:'estimating@akafence.net', website:'https://akafence.net'})">↗</button>
+                <button class="share-button" type="button" aria-label="Share Tom's contact info" title="Share contact" onclick="shareContact({firstName:'Tom', lastName:'Auchenbach', title:'Owner', vCard:'BEGIN:VCARD\nVERSION:3.0\nN:Auchenbach;Tom\nFN:Tom Auchenbach\nTITLE:Owner\nORG:AKA the Fence Company\nURL:https://akafence.net/\nEMAIL;TYPE=INTERNET:tom@akafence.net\nTEL;TYPE=voice,work,pref:6106935121\nTEL;TYPE=voice,cell,pref:484-824-5912\nADR:;;162 S freeman Street;Robesonia;PA;19551;United States\nEND:VCARD'})">↗</button>
 
                 <img src="tom-headshot.jpeg"
                      class="headshot">
@@ -321,7 +321,7 @@ body.menu-open {
             <div class="card-header"
                  style="background-image:url('header.jpg');">
 
-                <button class="share-button" type="button" aria-label="Share Matt's contact info" title="Share contact" onclick="shareContact({firstName:'Matt', lastName:'Koch', title:'President & Co-Owner', email:'estimating@akafence.net', website:'https://akafence.net'})">↗</button>
+                <button class="share-button" type="button" aria-label="Share Matt's contact info" title="Share contact" onclick="shareContact({firstName:'Matt', lastName:'Koch', title:'Owner', vCard:'BEGIN:VCARD\nVERSION:3.0\nN:Koch;Matt\nFN:Matt Koch\nTITLE:Owner\nORG:AKA the Fence Company\nURL:https://akafence.net/\nEMAIL;TYPE=INTERNET:matt@akafence.net\nTEL;TYPE=voice,work,pref:6106935121\nTEL;TYPE=voice,cell,pref:610-587-5081\nADR:;;162 S freeman Street;Robesonia;PA;19551;United States\nEND:VCARD'})">↗</button>
 
                 <img src="Koch-headshot.jpg"
                      class="headshot">
@@ -354,7 +354,7 @@ body.menu-open {
             <div class="card-header"
                  style="background-image:url('header.jpg');">
 
-                <button class="share-button" type="button" aria-label="Share Brad's contact info" title="Share contact" onclick="shareContact({firstName:'Brad', lastName:'Kreitz', title:'Foreman & Estimator', email:'estimating@akafence.net', website:'https://akafence.net'})">↗</button>
+                <button class="share-button" type="button" aria-label="Share Brad's contact info" title="Share contact" onclick="shareContact({firstName:'Brad', lastName:'Kreitz', title:'Foreman & Estimator', vCard:'BEGIN:VCARD\nVERSION:3.0\nN:Kreitz;Brad\nFN:Brad Kreitz\nTITLE:Foreman & Estimator\nORG:AKA the Fence Company\nURL:https://akafence.net/\nEMAIL;TYPE=INTERNET:matt@akafence.net\nTEL;TYPE=voice,work,pref:6106935121\nTEL;TYPE=voice,cell,pref:610-655-7817\nADR:;;162 S freeman Street;Robesonia;PA;19551;United States\nEND:VCARD'})">↗</button>
 
                 <img src="brad-headshot.jpg"
                      class="headshot">
@@ -387,7 +387,7 @@ body.menu-open {
             <div class="card-header"
                  style="background-image:url('header.jpg');">
 
-                <button class="share-button" type="button" aria-label="Share Heather's contact info" title="Share contact" onclick="shareContact({firstName:'Heather', lastName:'Auchenbach', title:'Operations Manager', email:'estimating@akafence.net', website:'https://akafence.net'})">↗</button>
+                <button class="share-button" type="button" aria-label="Share Heather's contact info" title="Share contact" onclick="shareContact({firstName:'Heather', lastName:'Auchenbach', title:'Operations Manager', vCard:'BEGIN:VCARD\nVERSION:3.0\nN:Auchenbach;Heather\nFN:Heather Auchenbach\nTITLE:Operations Manager\nORG:AKA the Fence Company\nURL:https://akafence.net/\nEMAIL;TYPE=INTERNET:heather@akafence.net\nTEL;TYPE=voice,work,pref:6106935121\nADR:;;162 S freeman Street;Robesonia;PA;19551;United States\nEND:VCARD'})">↗</button>
 
                 <img src="heather-headshot.jpg"
                      class="headshot">
@@ -503,7 +503,7 @@ body.menu-open {
 
     function shareContact(contact) {
         const fullName = `${contact.firstName} ${contact.lastName}`;
-        const vCard = buildVCard(contact);
+        const vCard = contact.vCard || buildVCard(contact);
         const fileName = `${contact.firstName}-${contact.lastName}.vcf`.replace(/\s+/g, '-').toLowerCase();
         const file = new File([vCard], fileName, { type: 'text/vcard;charset=utf-8' });
         const shareData = {
