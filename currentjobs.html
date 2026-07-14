@@ -468,7 +468,7 @@ body.menu-open {
     transform: translateX(0);
     opacity: 1;
 }
-. {
+.repair-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1028,7 +1028,7 @@ function renderJobs() {
 
     <span>
         ${job.name}
-        ${job.isRepair ? '<span class="">🔨</span>' : ''}
+        ${job.isRepair ? '<span class="repair-badge">🔨</span>' : ''}
     </span>
 
     ${job.rating > 0 ? `
@@ -2139,6 +2139,12 @@ function goToHome() {
     window.location.href = "index.html";
 }
 
+function goToCurrentJobs() {
+    closeSafariMenu();
+    if (window.location.pathname.endsWith("currentjobs.html")) return;
+    window.location.href = "currentjobs.html";
+}
+
 function goToJobTracker() {
     closeSafariMenu();
     if (window.location.pathname.endsWith("jobtracker.html")) return;
@@ -2201,6 +2207,7 @@ async function setRating(jobId, value) {
             <div class="safari-menu-icon">📅</div>
             <div class="safari-menu-label">Add Days Off</div>
         </div>
+
         <div class="safari-menu-item" onclick="goToJobTracker();">
             <div class="safari-menu-icon">📋</div>
             <div class="safari-menu-label">Job Tracker</div>
